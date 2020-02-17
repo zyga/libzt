@@ -1,0 +1,5 @@
+libzt (0.1-1) UNRELEASED; urgency=medium
+
+  * Initial release. (Closes: #951547)
+
+ -- Zygmunt Krynicki <me@zygoon.pl>  Sun, 05 Jan 2020 20:41:38 +0100

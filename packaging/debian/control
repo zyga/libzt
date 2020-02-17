@@ -1,0 +1,59 @@
+Source: libzt
+Section: devel
+Priority: optional
+Maintainer: Zygmunt Krynicki <me@zygoon.pl>
+Standards-Version: 4.3.0
+Homepage: https://github.com/zyga/libzt
+Build-Depends: debhelper
+
+Package: libzt1
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: libzt is a simple and robust unit test library for C
+ The library provides functions for common checks and assertions,
+ which produce readable diagnostic messages that integrate well with
+ "make check" and programming editors, such as vi.
+ .
+  - Robust, allowing you to focus on your code.
+  - Simple and small, making it quick to learn and use.
+  - Doesn't use dynamic memory allocation, reducing error handling.
+  - Equipped with useful helpers for writing test cases.
+  - Portable and supported on Linux, MacOS and Windows.
+  - Documented and fully coverage and integration tested.
+ .
+ This package contains the shared library for programs linking with libzt.
+
+Package: libzt-dev
+Section: libdevel
+Architecture: any
+Depends: ${misc:Depends}
+Description: libzt is a simple and robust unit test library for C (development files)
+ The library provides functions for common checks and assertions,
+ which produce readable diagnostic messages that integrate well with
+ "make check" and programming editors, such as vi.
+ .
+ This package contains the development headers for compiling programs with
+ libzt as well as the static library.
+
+Package: libzt-test
+Architecture: any
+Section: libdevel
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: libzt is a simple and robust unit test library for C (unit-tests)
+ The library provides functions for common checks and assertions,
+ which produce readable diagnostic messages that integrate well with
+ "make check" and programming editors, such as vi.
+ .
+ This package contains the test suite of libzt itself.
+
+Package: libzt-doc
+Architecture: all
+Section: doc
+Depends: ${misc:Depends}
+Description: libzt is a simple and robust unit test library for C (manual pages)
+ The library provides functions for common checks and assertions,
+ which produce readable diagnostic messages that integrate well with
+ "make check" and programming editors, such as vi.
+ .
+ This package contains the manual pages for libzt.

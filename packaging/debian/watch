@@ -1,0 +1,4 @@
+version=3
+opts=filenamemangle=s/.+\/libzt_(\d\S*)\.tar\.gz/libzt-\$1\.tar\.gz/,\
+uversionmangle=s/(\d)[_\.\-\+]?(RC|rc|pre|dev|beta|alpha)[.]?(\d*)$/\$1~\$2\$3/ \
+  https://github.com/zyga/libzt/releases .*/libzt_(\d\S*)\.tar\.gz
