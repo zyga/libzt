@@ -177,14 +177,17 @@ $(NAME)_$(VERSION).tar.gz: $(sort $(addprefix $(srcdir)/, \
 	examples/GNUmakefile configure GNUmakefile .makefiles/Makefile.Darwin.mk \
 	.makefiles/Makefile.Linux.mk .makefiles/Makefile.UNIX.mk .pvs-filter.awk \
 	.pvs-studio.cfg README.md LICENSE))
-ifneq ($(shell command -v gtar 2>/dev/null),)
-# This is how you create the release archive with GNU tools.
+
+ifneq ($(shell command -v tar 2>/dev/null),)
+ifneq ($(shell tar --version 2>&1 | grep GNU),)
 $(NAME)_$(VERSION).tar.gz:
-	gtar -zcf $@ --xform='s@^@$(NAME)-$(VERSION)/@g' $^
+	# Using GNU tar options
+	tar -zcf $@ --xform='s@^@$(NAME)-$(VERSION)/@g' $^
 else
-# This is how you create the release archive with BSD tools.
 $(NAME)_$(VERSION).tar.gz:
+	# Using BSD tar options
 	tar $(bsd_tar_options) -zcf $@ -s '@^$(srcdir)/@$(NAME)-$(VERSION)/@' $^
+endif
 endif
 
 # xcrun is the helper for accessing toolchain programs on MacOS
