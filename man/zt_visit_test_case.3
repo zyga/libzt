@@ -48,7 +48,7 @@ suite can contain any number of nested suites and test cases.
 .Bd -literal -offset indent
 #include <zt.h>
 
-static void test_foo(zt_test* t) {
+static void test_foo(struct zt_test* t) {
     printf("foo invoked\\n");
 }
 
@@ -57,7 +57,7 @@ static void suite_inner(zt_visitor v) {
 }
 
 
-static void test_bar(zt_test* t) {
+static void test_bar(struct zt_test* t) {
     printf("bar invoked\\n");
 }
 
