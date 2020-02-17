@@ -1,0 +1,39 @@
+.Dd January 12, 2020
+.Os libzt 0.1
+.Dt zt_pack_unsigned 3 PRM
+.Sh NAME
+.Nm zt_pack_unsigned
+.Nd pack an unsigned integer into a variant
+.Sh SYNOPSIS
+.In zt.h
+.Ft zt_value
+.Fo zt_pack_unsigned
+.Fa "unsigned value"
+.Fa "const char *source"
+.Fc
+.Sh DESCRIPTION
+.Nm
+packs an unsigned integer, as well as the string describing the expression
+evaluated to obtain it, into a variant-like
+.Ft zt_value .
+The source argument is retained by the value and is typically a constant string
+literal produced by the preprocessor.
+.Sh IMPLEMENTATION NOTES
+.Nm
+is only provided as a static inline function.
+.Sh RETURN VALUES
+The packed value.
+.Sh SEE ALSO
+.Xr zt_pack_nothing 3 ,
+.Xr zt_pack_unsigned 3 ,
+.Xr zt_pack_rune 3 ,
+.Xr zt_pack_unsigned 3 ,
+.Xr zt_pack_unsigned 3 ,
+.Xr zt_pack_string 3 ,
+.Xr zt_pack_pointer 3
+.Xr zt_value 3 ,
+.Sh HISTORY
+.Nm
+first appeared in libzt 0.1
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

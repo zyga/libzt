@@ -1,0 +1,42 @@
+.Dd January 12, 2020
+.Os libzt 0.1
+.Dt zt_location_at 3 PRM
+.Sh NAME
+.Nm zt_location_at
+.Nd pack file name and line number into a location value
+.Sh SYNOPSIS
+.In zt.h
+.Ft zt_location
+.Fo zt_location_at
+.Fa "const char* fname"
+.Fa "int lineno"
+.Fc
+.Sh DESCRIPTION
+.Nm
+packs both arguments into a
+.Nm zt_location .
+It exists to facilitate packing a
+.Nm zt_claim
+value without any temporary variables. It is useful for support of C compilers
+that do not support structure literals.
+.Pp
+For convenient definition of the current file and line number use the macro
+.Fn ZT_CURRENT_LOCATION
+.Sh IMPLEMENTATION NOTES
+.Nm
+is only provided as a static inline function.
+.Pp
+The fname argument is retained by the value and is typically a constant string
+literal produced by the preprocessor.
+.Sh RETURN VALUES
+A
+.Nm zt_location
+containing the given file name and line number.
+.Sh SEE ALSO
+.Xr ZT_CURRENT_LOCATION 3 ,
+.Xr zt_location 3
+.Sh HISTORY
+.Nm
+first appeared in libzt 0.1
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

@@ -1,0 +1,29 @@
+.Dd January 12, 2020
+.Os libzt 0.1
+.Dt ZT_CURRENT_LOCATION 3 PRM
+.Sh NAME
+.Nm ZT_CURRENT_LOCATION
+.Nd get the current location in the source file
+.Sh SYNOPSIS
+.In zt.h
+.Fd #define ZT_CURRENT_LOCATION() zt_location_at(__FILE__, __LINE__)
+.Sh DESCRIPTION
+.Nm
+provides
+.Nm zt_location
+describing the location of the source file invoking the macro.
+.Sh RETURN VALUES
+A
+.Nm zt_location
+containing the current values of
+.Nm __FILE__
+and
+.Nm __LINE .
+.Sh SEE ALSO
+.Xr zt_location_at 3 ,
+.Xr zt_location 3
+.Sh HISTORY
+.Nm
+first appeared in libzt 0.1
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

@@ -1,0 +1,108 @@
+.Dd January 12, 2020
+.Os libzt 0.1
+.Dt ZT_CHECK 3 PRM
+.Sh NAME
+.Nm zt_check ,
+.Nm zt_assert
+.Nd verify a test claim
+.Sh SYNOPSIS
+.In zt.h
+.Ft void
+.Fo zt_check
+.Fa "zt_test *test"
+.Fa "zt_claim claim"
+.Fc
+.Ft void
+.Fo zt_assert
+.Fa "zt_test *test"
+.Fa "zt_claim claim"
+.Fc
+.Sh DESCRIPTION
+Both
+.Fn zt_check
+and
+.Fn zt_assert
+verify a claim, encompassing a function with arguments, and is meant to
+be used inside test functions.
+.Pp
+The first argument is a pointer to opaque type encapsulating test outcome.
+The second argument is usually constructed with a helper macro, such as
+.Fn ZT_CMP_TRUE
+or
+.Fn ZT_CMP_FALSE .
+.Pp
+If the claim holds then happens and execution continues normally.
+If the claim does not hold then the test is marked as failed and
+a diagnostic message is printed to
+.Em stderr .
+.Pp
+The only difference between
+.Fn zt_check
+and
+.Fn zt_assert
+is that the former allows the test to continue executing while the latter
+performs a non-local exit from the test function. Note that only the
+currently executing test function is affected. Other tests cases and test suites will still execute normally.
+.Pp
+.Fn zt_check
+should be used when it is safe to execute remainder of the test even if the
+claim is not true. This approach allows each failure to be accompanied by as
+much diagnostic output as possible, without causing the test program to
+crash.
+.Pp
+.Fn zt_assert
+should be used when it is not safe or meaningless to execute remainder of the
+test on failure.
+.Sh IMPLEMENTATION NOTES
+Non-local exit from
+.Fn zt_assert
+is implemented using
+.Fn siglongjump .
+One should not depend on neither C++ destructors nor the GCC cleanup function extension for correct resource management.
+.Sh RETURN VALUES
+Neither function return anything. Failures are remembered inside the opaque
+.Nm zt_test
+structure passed by pointer as the first argument.
+.Sh EXAMPLES
+A minimal test program that looks up the UNIX user
+.Em root
+and measures several properties of the returned record.
+.Bd -literal -offset indent
+#include <sys/types.h>
+#include <pwd.h>
+
+#include <zt.h>
+
+static void test_root_user(zt_test* t) {
+    struct passwd *p = getpwnam("root");
+    zt_assert(t, ZT_NOT_NULL(p));
+    zt_check(t, ZT_CMP_CSTR(p->pw_name, ==, "root"));
+    zt_check(t, ZT_CMP_INT(p->pw_uid, ==, 0));
+    zt_check(t, ZT_CMP_INT(p->pw_gid, ==, 0));
+}
+
+static void test_suite(zt_visitor v) {
+    ZT_VISIT_TEST_CASE(v, test_root_user);
+}
+
+int main(int argc, char** argv, char** envp) {
+    return zt_main(argc, argv, envp, test_suite);
+}
+.Ed
+.Sh SEE ALSO
+.Xr ZT_CMP_BOOL 3 ,
+.Xr ZT_CMP_CSTR 3 ,
+.Xr ZT_CMP_INT 3 ,
+.Xr ZT_CMP_UINT 3 ,
+.Xr ZT_FALSE 3 ,
+.Xr ZT_NOT_NULL 3 ,
+.Xr ZT_NULL 3 ,
+.Xr ZT_TRUE 3
+.Sh HISTORY
+The
+.Fn zt_check
+and the
+.Fn zt_assert
+functions first appeared in libzt 0.1
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

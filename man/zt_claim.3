@@ -1,0 +1,86 @@
+.Dd January 12, 2020
+.Os libzt 0.1
+.Dt zt_claim 3 PRM
+.Sh NAME
+.Nm zt_claim
+.Nd structure capturing unevaluated assertion
+.Sh SYNOPSIS
+.In zt.h
+.Vt typedef struct zt_claim { ... } zt_claim;
+.Bl -column -offset indent "struct zt_verifier *(*)(void) " "verifier " Description"
+.It Sy Type Ta Sy Member Ta Sy Description
+.It Vt struct zt_verifier *(*)(void) Ta verifier Ta Verifier factory function
+.It Vt zt_value[3] Ta args Ta arguments to apply to the verifier
+.It Vt zt_location Ta location Ta Source code location where claim was made
+.El
+.Sh DESCRIPTION
+.Nm
+binds a verifier factory function with concrete arguments. This allows the
+entire claim to be passed around and evaluated on demand. In case of failure
+the location where the claim was made can be referenced for construction of
+error messages.
+.Sh IMPLEMENTATION NOTES
+The verification system is comprised of the following chain of cooperating
+elements. For example a trivial integer relationship assertion behaves as
+follows.
+.Fn ZT_CMP_INT ,
+or another similar macro, invokes
+.Fn zt_cmp_int ,
+providing source code location as
+.Nm zt_location ,
+and packaging specific types into common variant type
+.Nm zt_value .
+The result is a
+.Nm zt_claim
+which is then passed to
+.Fn zt_assert
+or
+.Fn zt_check
+for evaluation.
+.Pp
+The roles of all the essential types and functions is summarized below.
+.Bl -bullet
+.It
+.Nm zt_value
+captures values expressed in a test case
+.It
+.Nm zt_claim
+transports up to three values and an opaque verifier
+.It
+.Fn zt_check
+and
+.Fn zt_assert
+validate the claim by instantiating
+.Nm zt_verifier.
+.It
+.Nm zt_verifier
+(private) wraps a verification function, including the arity and expected
+kind of each argument.
+.It
+.Nm zt_arg_info
+(private) pairs expected argument kind with a customized error message used
+on kind mismatch.
+.It
+.Fn zt_verify_claim
+(private) ensures verifier function arity and argument kind matches what is
+encoded in the claim and invokes the verifier function.
+.It
+The specific verifier function inspects the argument and performs the actual
+verification of the desired property that the test is measuring.
+.It
+.Nm zt_test
+(private) keeps track of test outcome, provides a stream for writing error
+messages and assists in performing non-local exit.
+.El
+.Sh SEE ALSO
+.Xr zt_assert 3 ,
+.Xr zt_check 3
+.Sh HISTORY
+.Nm
+first appeared in libzt 0.1
+.Sh BUGS
+Part of the API is private which prevents third party verification functions
+from being written. This is done on purpose to to allow for some more
+experimentation before stabilizing the interface.
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

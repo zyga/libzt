@@ -1,0 +1,67 @@
+.Dd January 12, 2020
+.Os libzt 0.1
+.Dt ZT_NOT_NULL 3 PRM
+.Sh NAME
+.Nm ZT_NOT_NULL ,
+.Nm zt_not_null
+.Nd construct a claim that a pointer is not NULL
+.Sh SYNOPSIS
+.In zt.h
+.Bd -literal
+#define ZT_NOT_NULL(value) \\
+  zt_not_null( \\
+    ZT_CURRENT_LOCATION(), \\
+    zt_pack_pointer((value), #value))
+.Ed
+.Ft zt_claim
+.Fo zt_not_null
+.Fa "zt_location location"
+.Fa "zt_value value"
+.Fc
+.Sh DESCRIPTION
+.Fn zt_not_null
+constructs a claim that a given pointer is not NULL. It should be used through the
+macro
+.Fn ZT_NOT_NULL ,
+which passes source code location and packs argument.
+.Pp
+.Fn ZT_NOT_NULL
+can be useful, when coupled with
+.Fn zt_assert ,
+to ensure that an object was correctly produced, allocated or returned
+and that the reminder of the test can inspect its properties using
+.Fn zt_check .
+.Sh IMPLEMENTATION NOTES
+.Fn ZT_NOT_NULL
+evaluates
+.Em value
+only once.
+.Sh RETURN VALUES
+Both the macro and the function return a
+.Nm zt_claim
+structure with the appropriate attributes set. The returned claim is usually
+passed to
+.Fn zt_check
+or to
+.Fn zt_assert .
+.Sh SEE ALSO
+.Xr zt_assert 3 ,
+.Xr zt_check 3 ,
+.Xr zt_claim 3 ,
+.Xr ZT_CMP_BOOL 3 ,
+.Xr ZT_CMP_CHAR 3 ,
+.Xr ZT_CMP_CSTR 3 ,
+.Xr ZT_CMP_INT 3 ,
+.Xr ZT_CMP_UINT 3 ,
+.Xr ZT_FALSE 3 ,
+.Xr ZT_NOT_NULL 3 ,
+.Xr ZT_NOT_NULL 3
+.Xr zt_value 3 ,
+.Sh HISTORY
+The
+.Fn ZT_NOT_NULL
+macro and the
+.Fn zt_not_null
+function first appeared in libzt 0.1
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

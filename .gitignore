@@ -1,0 +1,57 @@
+# Various editor files
+*.swp
+*.vcxproj.user
+*~
+.vs
+
+# MacOS folder meta-data
+.DS_Store
+
+# cscope index
+cscope.out
+
+# makefile created by configure script
+Makefile.distro
+
+# Example program
+examples/demo
+examples/demo.exe
+examples/test-root-user
+examples/test-root-user.exe
+
+# Release archives
+libzt_*.tar.gz
+libzt_*.zip
+
+# The test program
+libzt-test
+libzt-test.exe
+
+# LLVM Code coverage files
+*.profdata
+*.profraw
+
+# Build directories
+build-*
+
+# Object files
+*.o
+
+# static libraries
+*.a
+*.lib
+
+# shared libraries and plugins
+*.dll
+*.so
+*.so.*
+*.dylib
+*.bundle
+
+# Static analysis files
+*.c.i
+*.PVS-Studio.log
+pvs-report/
+
+# Configured in-tree build
+GNUmakefile.configure.mk

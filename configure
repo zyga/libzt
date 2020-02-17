@@ -1,0 +1,58 @@
+#!/bin/sh
+# Copyright 2019-2020 Zygmunt Krynicki.
+#
+# This file is part of libzt.
+#
+# Libzt is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License.
+#
+# Libzt is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
+
+# Configure script for integration with distribution packaging preferences.
+{
+    while [ "$#" -gt 1 ]; do
+        case "$1" in
+            --help)
+                echo "This configure script is only meant for Linux distribution packaging" >&2
+                exit 1
+                ;;
+            --build=*)                      shift ;;
+            --disable-dependency-tracking)  shift ;;
+            --disable-maintainer-mode)      shift ;;
+            --disable-silent-rules)         shift ;;
+            --host=*)                       shift ;;
+            --program-prefix=)              shift ;;
+            --bindir=*)         echo "bindir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            --datadir=*)        echo "datadir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            --exec-prefix=*)    echo "exec_prefix=$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            --includedir=*)     echo "includedir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            --infodir=*)        echo "infodir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            --libdir=*)         echo "libdir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            --libexecdir=*)     echo "libexecdir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            --mandir=*)         echo "mandir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            --prefix=*)         echo "prefix=$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            --sbindir=*)        echo "sbindir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            --sharedstatedir=*) echo "sharedstatedir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            --sysconfdir=*)     echo "sysconfdir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            --localstatedir=*)  echo "localstatedir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            *) echo "configure: unknown option $1" >&2 && exit 1 ;;
+        esac
+    done
+    echo "srcdir=$(dirname "$0")"
+    echo "VPATH=\$(srcdir)"
+
+    test -n "$CFLAGS" && echo "CFLAGS=$CFLAGS"
+    test -n "$CXXFLAGS" && echo "CXXFLAGS=$CXXFLAGS"
+    test -n "$LDFLAGS" && echo "LDFLAGS=$LDFLAGS"
+} > GNUmakefile.configure.mk
+
+if [ ! -e GNUmakefile ]; then
+    ln -s "$(dirname "$0")"/GNUmakefile GNUmakefile
+fi

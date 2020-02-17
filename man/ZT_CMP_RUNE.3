@@ -1,0 +1,70 @@
+.Dd January 12, 2020
+.Os libzt 0.1
+.Dt ZT_CMP_RUNE 3 PRM
+.Sh NAME
+.Nm ZT_CMP_RUNE ,
+.Nm zt_cmp_rune
+.Nd construct a claim of a relation between two characters (runes)
+.Sh SYNOPSIS
+.In zt.h
+.Bd -literal
+#define ZT_CMP_RUNE(left, rel, right) \\
+  zt_cmp_rune( \\
+    ZT_CURRENT_LOCATION(), \\
+    zt_pack_rune((left), (#left)), \\
+    zt_pack_string((#rel), (#rel)), \\
+    zt_pack_rune((right), (#right)))
+.Ed
+.Ft zt_claim
+.Fo zt_cmp_rune
+.Fa "zt_location location"
+.Fa "zt_value left"
+.Fa "zt_value rel"
+.Fa "zt_value right"
+.Fc
+.Sh DESCRIPTION
+.Fn zt_cmp_rune
+constructs a claim of a relation between two unsigned integers. It should be
+used through the macro
+.Fn ZT_CMP_RUNE
+which passes source code location and packs arguments.
+.Pp
+The relation must be one of
+.Em == ,
+.Em != ,
+.Em < ,
+.Em <= ,
+.Em >
+or
+.Em >= .
+.Sh IMPLEMENTATION NOTES
+.Fn ZT_CMP_RUNE
+evaluates
+.Em left
+and
+.Em right
+exactly once.
+.Sh RETURN VALUES
+Both the macro and the function return a claim structure with the right
+attributes set. The returned claim is usually passed to
+.Fn zt_check
+or to
+.Fn zt_assert .
+.Sh SEE ALSO
+.Xr ZT_CMP_BOOL 3 ,
+.Xr ZT_CMP_CHAR 3 ,
+.Xr ZT_CMP_CSTR 3 ,
+.Xr ZT_CMP_UINT 3 ,
+.Xr ZT_FALSE 3 ,
+.Xr ZT_NOT_NULL 3 ,
+.Xr ZT_NULL 3 ,
+.Xr ZT_TRUE 3 ,
+.Xr zt_check 3 ,
+.Sh HISTORY
+The
+.Fn ZT_CMP_RUNE
+macro and the
+.Fn zt_cmp_rune
+function first appeared in libzt 0.1
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

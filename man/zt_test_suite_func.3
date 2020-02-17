@@ -1,0 +1,31 @@
+.Dd January 12, 2020
+.Os libzt 0.1
+.Dt zt_test_suite_func 3 PRM
+.Sh NAME
+.Nm zt_test_suite_func
+.Nd type of pointer to a test suite function
+.Sh SYNOPSIS
+.Ft typedef void
+.Fo (*zt_test_suite_func)
+.Fa "zt_visitor"
+.Fc
+.Sh DESCRIPTION
+.Nm
+is a pointer to a function implementing a test suite, which groups any number
+of test cases and other test suites.
+.Pp
+A single test suite, passed as an argument to
+.Fn zt_main ,
+is used to enumerate and discover all the tests in a given test program.
+.Sh IMPLEMENTATION NOTES
+The
+.Nm zt_visitor
+argument is used to implement the test case and test suite enumeration system.
+.Sh SEE ALSO
+.Xr zt_main 3 ,
+.Xr zt_visitor 3
+.Sh HISTORY
+.Nm
+first appeared in libzt 0.1
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

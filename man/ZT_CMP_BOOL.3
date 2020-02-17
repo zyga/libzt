@@ -1,0 +1,72 @@
+.Dd January 12, 2020
+.Os libzt 0.1
+.Dt ZT_CMP_BOOL 3 PRM
+.Sh NAME
+.Nm ZT_CMP_BOOL ,
+.Nm zt_cmp_bool
+.Nd construct a claim of a relation between two booleans
+.Sh SYNOPSIS
+.In zt.h
+.Bd -literal
+#define ZT_CMP_BOOL(left, rel, right) \\
+  zt_cmp_bool( \\
+    ZT_CURRENT_LOCATION(), \\
+    zt_pack_boolean((left), (#left)), \\
+    zt_pack_string((#rel), (#rel)), \\
+    zt_pack_boolean((right), (#right)))
+.Ed
+.Ft zt_claim
+.Fo zt_cmp_bool
+.Fa "zt_location location"
+.Fa "zt_value left"
+.Fa "zt_value rel"
+.Fa "zt_value right"
+.Fc
+.Sh DESCRIPTION
+.Fn zt_cmp_bool
+constructs a claim of a relation between two booleans. It should be used
+through the macro
+.Fn ZT_CMP_BOOL
+which passes source code location and packs arguments.
+.Pp
+The relation must be either
+.Em ==
+or
+.Em != .
+.Pp
+It may be more natural to use
+.Fn ZT_TRUE
+or
+.Fn ZT_FALSE
+instead.
+.Sh IMPLEMENTATION NOTES
+.Fn ZT_CMP_BOOL
+evaluates
+.Em left
+and
+.Em right
+exactly once.
+.Sh RETURN VALUES
+Both the macro and the function return a claim structure with the right
+attributes set. The returned claim is usually passed to
+.Fn zt_check
+or to
+.Fn zt_assert .
+.Sh SEE ALSO
+.Xr ZT_CMP_CHAR 3 ,
+.Xr ZT_CMP_CSTR 3 ,
+.Xr ZT_CMP_INT 3 ,
+.Xr ZT_CMP_UINT 3 ,
+.Xr ZT_FALSE 3 ,
+.Xr ZT_NOT_NULL 3 ,
+.Xr ZT_NULL 3 ,
+.Xr ZT_TRUE 3 ,
+.Xr zt_check 3 ,
+.Sh HISTORY
+The
+.Fn ZT_CMP_BOOL
+macro and the
+.Fn zt_cmp_bool
+function first appeared in libzt 0.1
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

@@ -1,0 +1,19 @@
+VERS_0_1 {
+	global:
+		zt_assert;
+		zt_check;
+		zt_cmp_bool;
+		zt_cmp_cstr;
+		zt_cmp_int;
+		zt_cmp_rune;
+		zt_cmp_uint;
+		zt_false;
+		zt_main;
+		zt_not_null;
+		zt_null;
+		zt_pack_rune;
+		zt_true;
+		zt_visit_test_case;
+		zt_visit_test_suite;
+	local: *;
+};

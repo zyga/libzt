@@ -1,0 +1,64 @@
+.Dd January 12, 2020
+.Os libzt 0.1
+.Dt libzt 3 PRM
+.Sh NAME
+.Nm libzt
+.Nd Library for unit testing C
+.Sh LIBRARY
+Library for unit testing C (-lzt)
+.Sh SYNOPSIS
+.In zt.h
+.Sh DESCRIPTION
+The
+.Nm
+library offers routines for writing C unit tests. It is focusing on simplicity,
+robustness and correctness, offering facilities for:
+.Bl -dash
+.It
+Defining test suites and test cases.
+.It
+Asserting relations between booleans, integers, strings and characters.
+Asserting properties of booleans and pointers.
+.It
+Creating command line interface that allows enumerating and invoking tests.
+The output of test programs integrates well with
+.Em make .
+.El
+.Pp
+The library code is portable between a wide range of C compilers and operating
+systems. All library code is covered by a self-test test suite.  The library
+never allocates memory or uses the file system which makes it suitable for
+working on embedded targets.
+.Sh EXAMPLE
+The following fragment demonstrates a simple test program, comprised of a
+single test suite with a single test case checking the relations between two
+integers.
+.Bd -literal -offset indent
+#include <zt.h>
+
+static void test_math(zt_test* t)
+{
+    zt_check(t, ZT_CMP_INT(2 + 2, ==, 4));
+}
+
+static void test_suite(zt_visitor v)
+{
+    ZT_VISIT_TEST_CASE(v, test_math);
+}
+
+int main(int argc, char** argv, char** envp)
+{
+    return zt_main(argc, argv, envp, test_suite);
+}
+.Ed
+.Sh SEE ALSO
+.Xr zt_main 3 ,
+.Xr ZT_VISIT_TEST_CASE 3 ,
+.Xr ZT_VISIT_TEST_SUITE 3 ,
+.Xr zt_check 3 ,
+.Xr ZT_CMP_INT 3
+.Sh HISTORY
+.Nm
+version 0.1 was first released in 2020
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

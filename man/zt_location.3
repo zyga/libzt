@@ -1,0 +1,32 @@
+.Dd January 12, 2020
+.Os libzt 0.1
+.Dt zt_location 3 PRM
+.Sh NAME
+.Nm zt_location
+.Nd description of a specific line in a source file
+.Sh SYNOPSIS
+.In zt.h
+.Vt typedef struct zt_location { ... } zt_location;
+.Sh DESCRIPTION
+.Nm
+contains a file name and a line number.
+.Bl -column -offset indent "const char * " "fname " Description"
+.It Sy Type Ta Sy Entry Ta Sy Description
+.It Vt const char * Ta filename Ta Name of the source file, from __FILE__
+.It Vt int Ta lineno Ta Number of the line in said file, from __LINE__
+.El
+.Pp
+Use
+.Fn ZT_CURRENT_LOCATION
+macro to obtain a location describing the current file and line number.
+.Sh IMPLEMENTATION NOTES
+.Nm
+is used to report the location of failing test checks and assertions.
+.Sh SEE ALSO
+.Xr ZT_CURRENT_LOCATION 3 ,
+.Xr zt_location_at 3
+.Sh HISTORY
+.Nm
+first appeared in libzt 0.1
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

@@ -1,0 +1,84 @@
+.Dd January 12, 2020
+.Os libzt 0.1
+.Dt ZT_VISIT_TEST_CASE 3 PRM
+.Sh NAME
+.Nm zt_visit_test_case ,
+.Nm ZT_VISIT_TEST_CASE ,
+.Nm zt_visit_test_suite ,
+.Nm ZT_VISIT_TEST_SUITE
+.Nd discover test cases and their structure
+.Sh SYNOPSIS
+.In zt.h
+.Ft void
+.Fo zt_visit_test_case
+.Fa "zt_visitor v"
+.Fa "zt_test_case_func func"
+.Fa "const char *name"
+.Fc
+.Fd #define ZT_VISIT_TEST_CASE(v, tcase) zt_visit_test_case(v, tcase, #tcase)
+.Ft void
+.Fo zt_visit_test_case
+.Fa "zt_visitor v"
+.Fa "zt_test_suite_func func"
+.Fa "const char *name"
+.Fc
+.Fd #define ZT_VISIT_TEST_SUITE(v, tsuite) zt_visit_test_suite(v, tsuite, #tsuite)
+.Sh DESCRIPTION
+.Fn zt_visit_test_case
+and
+.Fn zt_visit_test_suite ,
+or more usually - under their macro from
+.Fn ZT_VISIT_TEST_CASE
+and
+.Fn ZT_VISIT_TEST_SUITE ,
+are used to implement discovery for test suites and test cases. Test suites are
+represented as functions that visit other test suites and test cases. Test
+cases are represented as functions that execute actual test code. 
+.Pp
+The macros are provided as convenience to avoid having to invent names.
+.Pp
+Typically the main test suite is passed as an argument to
+.Fn zt_main
+which handles the rest of the discovery, and if necessary, execution.
+.Sh RETURN VALUES
+Visit functions do not return any value.
+.Sh EXAMPLES
+The following example shows how to create a test suite with two test cases. A
+suite can contain any number of nested suites and test cases.
+.Bd -literal -offset indent
+#include <zt.h>
+
+static void test_foo(zt_test* t) {
+    printf("foo invoked\\n");
+}
+
+static void suite_inner(zt_visitor v) {
+    ZT_VISIT_TEST_CASE(v, test_foo);
+}
+
+
+static void test_bar(zt_test* t) {
+    printf("bar invoked\\n");
+}
+
+static void main_suite(zt_visitor v) {
+    ZT_VISIT_TEST_SUITE(v, suite_inner);
+    ZT_VISIT_TEST_CASE(v, test_bar);
+}
+
+int main(int argc, char** argv, char** envp) {
+    return zt_main(argc, argv, envp, main_suite);
+}
+.Ed
+.Sh SEE ALSO
+.Xr zt_main 3 ,
+.Xr zt_test_suite_func 3 ,
+.Xr zt_test_case_func 3 ,
+.Sh HISTORY
+The
+.Fn zt_visit_test_case
+and the
+.Fn zt_visit_test_suite
+functions, as well as the corresponding macros, first appeared in libzt 0.1
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl
