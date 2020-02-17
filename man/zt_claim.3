@@ -9,9 +9,9 @@
 .Vt typedef struct zt_claim { ... } zt_claim;
 .Bl -column -offset indent "struct zt_verifier *(*)(void) " "verifier " Description"
 .It Sy Type Ta Sy Member Ta Sy Description
-.It Vt struct zt_verifier *(*)(void) Ta verifier Ta Verifier factory function
-.It Vt zt_value[3] Ta args Ta arguments to apply to the verifier
-.It Vt zt_location Ta location Ta Source code location where claim was made
+.It Vt struct zt_verifier *(*)(void) Ta verifier Ta Verifier factory
+.It Vt zt_value[3] Ta args Ta verifier arguments
+.It Vt zt_location Ta location Ta origin of the claim
 .El
 .Sh DESCRIPTION
 .Nm
