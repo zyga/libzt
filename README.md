@@ -1,3 +1,5 @@
+![C CI](https://github.com/zyga/libzt/workflows/C%20CI/badge.svg)
+
 # libzt is an unit test library for C
 
 libzt is a simple and robust unit test library for C.
