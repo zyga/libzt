@@ -186,7 +186,7 @@ $(NAME)_$(VERSION).tar.gz:
 else
 $(NAME)_$(VERSION).tar.gz:
 	# Using BSD tar options
-	tar $(bsd_tar_options) -zcf $@ -s '@^$(srcdir)/@$(NAME)-$(VERSION)/@' $^
+	tar $(bsd_tar_options) -zcf $@ -s '@.@$(NAME)-$(VERSION)/~@' $^
 endif
 endif
 
