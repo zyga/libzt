@@ -278,6 +278,11 @@ fmt:: $(wildcard $(srcdir)/*.[ch] $(srcdir)/examples/*.[ch])
 	clang-format -i -style=WebKit $^
 endif
 
+# GNU man can be used to perform rudimentary validation of manual pages.
+ifneq ($(and $(shell command -v man 2>/dev/null),$(shell man --help 2>&1 | grep -F -- --warning)),)
+static-check:: $(wildcard $(srcdir)/man/*.3)
+	LC_ALL=en_US.UTF-8 MANROFFSEQ='' MANWIDTH=80 man --warnings -E UTF-8 -l -Tutf8 -Z $^ 2>&1 >/dev/null | diff -u - /dev/null
+endif
 
 # Run static checkers when checking.
 check:: static-check
