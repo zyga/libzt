@@ -363,7 +363,7 @@ static void test_verify_claim0(void)
     claim.location.fname = "file.c";
     claim.location.lineno = 13;
     selftest_passing_verify0_called = true;
-    claim.verifier = selftest_passing_verifier0;
+    claim.make_verifier = selftest_passing_verifier0;
     result = zt_verify_claim(&t, &claim);
     assert(result == true);
     assert(selftest_passing_verify0_called == true);
@@ -380,7 +380,7 @@ static void test_verify_claim1(void)
     claim.location.fname = "file.c";
     claim.location.lineno = 13;
     selftest_passing_verify0_called = true;
-    claim.verifier = selftest_passing_verifier1;
+    claim.make_verifier = selftest_passing_verifier1;
     result = zt_verify_claim(&t, &claim);
     assert(result == true);
     assert(selftest_passing_verify1_called == true);
@@ -398,7 +398,7 @@ static void test_verify_claim2(void)
     claim.location.fname = "file.c";
     claim.location.lineno = 13;
     selftest_passing_verify2_called = true;
-    claim.verifier = selftest_passing_verifier2;
+    claim.make_verifier = selftest_passing_verifier2;
     result = zt_verify_claim(&t, &claim);
     assert(result == true);
     assert(selftest_passing_verify2_called == true);
@@ -417,7 +417,7 @@ static void test_verify_claim3(void)
     claim.location.fname = "file.c";
     claim.location.lineno = 13;
     selftest_passing_verify3_called = true;
-    claim.verifier = selftest_passing_verifier3;
+    claim.make_verifier = selftest_passing_verifier3;
     result = zt_verify_claim(&t, &claim);
     assert(result == true);
     assert(selftest_passing_verify3_called == true);
@@ -438,7 +438,7 @@ static void test_verify_bogus_claim4(void)
     zt_claim claim;
     zt_test t = selftest_make_test();
     memset(&claim, 0, sizeof claim);
-    claim.verifier = selftest_bogus_verifier4;
+    claim.make_verifier = selftest_bogus_verifier4;
     claim.location.fname = "file.c";
     claim.location.lineno = 13;
     result = zt_verify_claim(&t, &claim);
@@ -457,7 +457,7 @@ static void test_verify_mismatch_claim1of1(void)
     claim.location.fname = "file.c";
     claim.location.lineno = 13;
     selftest_passing_verify1_called = false;
-    claim.verifier = selftest_passing_verifier1;
+    claim.make_verifier = selftest_passing_verifier1;
     result = zt_verify_claim(&t, &claim);
     assert(result == false);
     assert(selftest_passing_verify1_called == false);
@@ -476,7 +476,7 @@ static void test_verify_mismatch_claim1of2(void)
     claim.location.fname = "file.c";
     claim.location.lineno = 13;
     selftest_passing_verify2_called = false;
-    claim.verifier = selftest_passing_verifier2;
+    claim.make_verifier = selftest_passing_verifier2;
     result = zt_verify_claim(&t, &claim);
     assert(result == false);
     assert(selftest_passing_verify2_called == false);
@@ -495,7 +495,7 @@ static void test_verify_mismatch_claim2of2(void)
     claim.location.fname = "file.c";
     claim.location.lineno = 13;
     selftest_passing_verify2_called = false;
-    claim.verifier = selftest_passing_verifier2;
+    claim.make_verifier = selftest_passing_verifier2;
     result = zt_verify_claim(&t, &claim);
     assert(result == false);
     assert(selftest_passing_verify2_called == false);
@@ -515,7 +515,7 @@ static void test_verify_mismatch_claim1of3(void)
     claim.location.fname = "file.c";
     claim.location.lineno = 13;
     selftest_passing_verify3_called = false;
-    claim.verifier = selftest_passing_verifier3;
+    claim.make_verifier = selftest_passing_verifier3;
     result = zt_verify_claim(&t, &claim);
     assert(result == false);
     assert(selftest_passing_verify3_called == false);
@@ -535,7 +535,7 @@ static void test_verify_mismatch_claim2of3(void)
     claim.location.fname = "file.c";
     claim.location.lineno = 13;
     selftest_passing_verify3_called = false;
-    claim.verifier = selftest_passing_verifier3;
+    claim.make_verifier = selftest_passing_verifier3;
     result = zt_verify_claim(&t, &claim);
     assert(result == false);
     assert(selftest_passing_verify3_called == false);
@@ -555,7 +555,7 @@ static void test_verify_mismatch_claim3of3(void)
     claim.location.fname = "file.c";
     claim.location.lineno = 13;
     selftest_passing_verify3_called = false;
-    claim.verifier = selftest_passing_verifier3;
+    claim.make_verifier = selftest_passing_verifier3;
     result = zt_verify_claim(&t, &claim);
     assert(result == false);
     assert(selftest_passing_verify3_called == false);
@@ -1429,7 +1429,7 @@ static void test_ZT_TRUE(void)
     zt_claim claim = ZT_TRUE(1 > 0);
     assert(strcmp(claim.location.fname, __FILE__) == 0);
     assert(claim.location.lineno == __LINE__ - 2);
-    assert(claim.verifier == zt_verifier_for_true);
+    assert(claim.make_verifier == zt_verifier_for_true);
     assert(zt_value_kind_of(claim.args[0]) == ZT_BOOLEAN);
     assert(claim.args[0].as.boolean == true);
     assert(strcmp(zt_source_of(claim.args[0]), "1 > 0") == 0);
@@ -1440,7 +1440,7 @@ static void test_ZT_FALSE(void)
     zt_claim claim = ZT_FALSE(0 < 1);
     assert(strcmp(claim.location.fname, __FILE__) == 0);
     assert(claim.location.lineno == __LINE__ - 2);
-    assert(claim.verifier == zt_verifier_for_false);
+    assert(claim.make_verifier == zt_verifier_for_false);
     assert(zt_value_kind_of(claim.args[0]) == ZT_BOOLEAN);
     assert(claim.args[0].as.boolean == true);
     assert(strcmp(zt_source_of(claim.args[0]), "0 < 1") == 0);
@@ -1451,7 +1451,7 @@ static void test_ZT_CMP_BOOL(void)
     zt_claim claim = ZT_CMP_BOOL(true, ==, 1 == 1);
     assert(strcmp(claim.location.fname, __FILE__) == 0);
     assert(claim.location.lineno == __LINE__ - 2);
-    assert(claim.verifier == zt_verifier_for_boolean_relation);
+    assert(claim.make_verifier == zt_verifier_for_boolean_relation);
 
     assert(zt_value_kind_of(claim.args[0]) == ZT_BOOLEAN);
     assert(claim.args[0].as.boolean == true);
@@ -1476,7 +1476,7 @@ static void test_ZT_CMP_RUNE(void)
     claim = ZT_CMP_RUNE(a, ==, b);
     assert(strcmp(claim.location.fname, __FILE__) == 0);
     assert(claim.location.lineno == __LINE__ - 2);
-    assert(claim.verifier == zt_verifier_for_rune_relation);
+    assert(claim.make_verifier == zt_verifier_for_rune_relation);
 
     assert(zt_value_kind_of(claim.args[0]) == ZT_RUNE);
     assert(claim.args[0].as.integer == 'a');
@@ -1501,7 +1501,7 @@ static void test_ZT_CMP_INT(void)
     claim = ZT_CMP_INT(a, ==, b);
     assert(strcmp(claim.location.fname, __FILE__) == 0);
     assert(claim.location.lineno == __LINE__ - 2);
-    assert(claim.verifier == zt_verifier_for_integer_relation);
+    assert(claim.make_verifier == zt_verifier_for_integer_relation);
 
     assert(zt_value_kind_of(claim.args[0]) == ZT_INTEGER);
     assert(claim.args[0].as.integer == 1);
@@ -1526,7 +1526,7 @@ static void test_ZT_CMP_UINT(void)
     claim = ZT_CMP_UINT(a, ==, b);
     assert(strcmp(claim.location.fname, __FILE__) == 0);
     assert(claim.location.lineno == __LINE__ - 2);
-    assert(claim.verifier == zt_verifier_for_unsigned_relation);
+    assert(claim.make_verifier == zt_verifier_for_unsigned_relation);
 
     assert(zt_value_kind_of(claim.args[0]) == ZT_UNSIGNED);
     assert(claim.args[0].as.unsigned_integer == 1);
@@ -1551,7 +1551,7 @@ static void test_ZT_CMP_CSTR(void)
     claim = ZT_CMP_CSTR(a, ==, b);
     assert(strcmp(claim.location.fname, __FILE__) == 0);
     assert(claim.location.lineno == __LINE__ - 2);
-    assert(claim.verifier == zt_verifier_for_string_relation);
+    assert(claim.make_verifier == zt_verifier_for_string_relation);
 
     assert(zt_value_kind_of(claim.args[0]) == ZT_STRING);
     assert(strcmp(claim.args[0].as.string, "foo") == 0);
@@ -1572,7 +1572,7 @@ static void test_ZT_NULL(void)
     zt_claim claim = ZT_NULL(p);
     assert(strcmp(claim.location.fname, __FILE__) == 0);
     assert(claim.location.lineno == __LINE__ - 2);
-    assert(claim.verifier == zt_verifier_for_null);
+    assert(claim.make_verifier == zt_verifier_for_null);
 
     assert(zt_value_kind_of(claim.args[0]) == ZT_POINTER);
     assert(claim.args[0].as.pointer == NULL);
@@ -1591,7 +1591,7 @@ static void test_ZT_NOT_NULL(void)
     zt_claim claim = ZT_NOT_NULL(p);
     assert(strcmp(claim.location.fname, __FILE__) == 0);
     assert(claim.location.lineno == __LINE__ - 2);
-    assert(claim.verifier == zt_verifier_for_not_null);
+    assert(claim.make_verifier == zt_verifier_for_not_null);
 
     assert(zt_value_kind_of(claim.args[0]) == ZT_POINTER);
     assert(claim.args[0].as.pointer == &p);
