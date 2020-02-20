@@ -176,7 +176,7 @@ $(NAME)_$(VERSION).tar.gz: $(sort $(addprefix $(srcdir)/, \
 	man/zt_visitor.3 examples/demo.c examples/test-root-user.c \
 	examples/GNUmakefile configure GNUmakefile .makefiles/Makefile.Darwin.mk \
 	.makefiles/Makefile.Linux.mk .makefiles/Makefile.UNIX.mk .pvs-filter.awk \
-	.pvs-studio.cfg README.md LICENSE))
+	.pvs-studio.cfg README.md LICENSE NEWS))
 
 ifneq ($(shell command -v tar 2>/dev/null),)
 ifneq ($(shell tar --version 2>&1 | grep GNU),)
