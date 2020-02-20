@@ -3,3 +3,7 @@ Changes in 0.1.1:
  * Argument type to all unit test functions was typedef'd
    to zt_t, to abbreviate the boilerplate text and to avoid
    having to type struct zt_test.
+
+ * The field zt_claim.verifier was renamed to zt_claim.make_verifier.
+   There is no public API breakage on this as claims are not constructed
+   by user code apart from the existing stable helpers.
