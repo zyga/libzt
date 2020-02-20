@@ -23,13 +23,13 @@ static const char *greeting(void) {
   return "hello there";
 }
 
-static void test_smoke(zt_test *t) {
+static void test_smoke(zt_t t) {
   zt_check(t, ZT_TRUE(2 + 2 == 4));
   zt_check(t, ZT_CMP_INT(2 + 2, ==, 4));
   zt_check(t, ZT_CMP_STR(greeting(), ==, "hello there"));
 }
 
-static void test_writing_to_tmpfile(zt_test *t) {
+static void test_writing_to_tmpfile(zt_t t) {
   FILE *f = tmpfile();
   zt_assert(t, ZT_NOT_NULL(f)); // stops test on failure
   zt_check(t, ZT_CMP_INT(fprintf(f, "%s", greeting()), >, 0);
