@@ -4,7 +4,7 @@
 
 #include <zt.h>
 
-static void passing_test(struct zt_test* t)
+static void passing_test(zt_t t)
 {
     zt_check(t, ZT_TRUE(2 + 2 == 4));
     zt_check(t, ZT_FALSE(2 + 2 == 5));
@@ -12,7 +12,7 @@ static void passing_test(struct zt_test* t)
     zt_check(t, ZT_CMP_BOOL(false, ==, false));
 }
 
-static void failing_test(struct zt_test* t)
+static void failing_test(zt_t t)
 {
     zt_check(t, ZT_TRUE(2 + 2 != 4));
     zt_check(t, ZT_FALSE(2 + 2 != 5));
@@ -20,7 +20,7 @@ static void failing_test(struct zt_test* t)
     zt_check(t, ZT_CMP_BOOL(false, ==, true));
 }
 
-static void badly_failing_test(struct zt_test* t)
+static void badly_failing_test(zt_t t)
 {
     zt_assert(t, ZT_CMP_INT(0, ==, -1));
     abort();

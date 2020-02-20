@@ -29,14 +29,15 @@ extern "C" {
 #define ZT_MINOR_VERSION 1
 
 struct zt_test;
-struct zt_visitor_vtab;
+typedef struct zt_test *zt_t;
 
+struct zt_visitor_vtab;
 typedef struct zt_visitor {
     void* id;
     const struct zt_visitor_vtab* vtab;
 } zt_visitor;
 
-typedef void (*zt_test_case_func)(struct zt_test*);
+typedef void (*zt_test_case_func)(zt_t);
 typedef void (*zt_test_suite_func)(zt_visitor);
 
 int zt_main(int argc, char** argv, char** envp, zt_test_suite_func tsuite);
@@ -149,8 +150,8 @@ typedef struct zt_claim {
     zt_location location;
 } zt_claim;
 
-void zt_check(struct zt_test* test, zt_claim claim);
-void zt_assert(struct zt_test* test, zt_claim claim);
+void zt_check(zt_t test, zt_claim claim);
+void zt_assert(zt_t test, zt_claim claim);
 
 zt_claim zt_true(zt_location location, zt_value value);
 zt_claim zt_false(zt_location location, zt_value value);

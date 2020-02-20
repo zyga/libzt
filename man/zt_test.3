@@ -2,10 +2,11 @@
 .Os libzt 0.1
 .Dt zt_test 3 PRM
 .Sh NAME
-.Nm zt_test
+.Nm zt_test , zt_t
 .Nd private representation of test state
 .Sh SYNOPSIS
-struct zt_test; /* opaque type */
+.Vt struct zt_test
+.Vt typedef struct zt_test *zt_t
 .Sh DESCRIPTION
 .Nm
 is an opaque type that holds test state during execution. The test type is
@@ -15,6 +16,9 @@ and
 .Fn zt_assert
 functions, to alter test state.
 .Pp
+.Nm zt_t
+is is a typedef that cuts the test case boilerplate size.
+.Pp
 Internally
 .Nm
 stores the outcome of the test as well as data required for non-local exit,
@@ -22,7 +26,9 @@ necessary when
 .Fn zt_assert
 fails.
 .Sh HISTORY
-.Nm
-first appeared in libzt 0.1
+.Nm zt_test
+first appeared in libzt 0.1,
+.Nm zt_t
+first appeared in libzt 0.1.1.
 .Sh AUTHORS
 .An "Zygmunt Krynicki" Aq Mt me@zygoon.pl
