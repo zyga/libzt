@@ -7,7 +7,7 @@
 .Sh SYNOPSIS
 .Ft typedef void
 .Fo (*zt_test_case_func)
-.Fa "struct zt_test *"
+.Fa "zt_t"
 .Fc
 .Sh DESCRIPTION
 .Nm
@@ -15,7 +15,9 @@ is a pointer to a function implementing a single test case.
 .Sh IMPLEMENTATION NOTES
 The
 .Nm zt_test
-pointer argument is meant to be passed to
+pointer (aka
+.Nm zt_t )
+argument is meant to be passed to
 .Fn zt_check
 and
 .Fn zt_assert

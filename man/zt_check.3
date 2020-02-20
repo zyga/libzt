@@ -9,12 +9,12 @@
 .In zt.h
 .Ft void
 .Fo zt_check
-.Fa "zt_test *test"
+.Fa "zt_t t"
 .Fa "zt_claim claim"
 .Fc
 .Ft void
 .Fo zt_assert
-.Fa "zt_test *test"
+.Fa "zt_t t"
 .Fa "zt_claim claim"
 .Fc
 .Sh DESCRIPTION
@@ -62,7 +62,9 @@ One should not depend on neither C++ destructors nor the GCC cleanup function ex
 .Sh RETURN VALUES
 Neither function return anything. Failures are remembered inside the opaque
 .Nm zt_test
-structure passed by pointer as the first argument.
+structure passed by pointer (aka
+.Nm zt_t )
+as the first argument.
 .Sh EXAMPLES
 A minimal test program that looks up the UNIX user
 .Em root
@@ -73,7 +75,7 @@ and measures several properties of the returned record.
 
 #include <zt.h>
 
-static void test_root_user(zt_test* t) {
+static void test_root_user(zt_t t) {
     struct passwd *p = getpwnam("root");
     zt_assert(t, ZT_NOT_NULL(p));
     zt_check(t, ZT_CMP_CSTR(p->pw_name, ==, "root"));

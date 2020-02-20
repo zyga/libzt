@@ -3,7 +3,7 @@
 
 #include <zt.h>
 
-static void test_root_user(struct zt_test* t)
+static void test_root_user(zt_t t)
 {
     struct passwd* p = getpwnam("root");
     zt_assert(t, ZT_NOT_NULL(p));

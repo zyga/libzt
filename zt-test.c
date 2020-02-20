@@ -134,7 +134,7 @@ static void selftest_stream_eq_at(FILE* stream, const char* file,
     }
 }
 
-static void selftest_close_test(zt_test* t)
+static void selftest_close_test(zt_t t)
 {
     fclose(t->stream);
     t->stream = NULL;
@@ -275,7 +275,7 @@ static void test_boolean_as_text(void)
 
 /* claim verification */
 static bool selftest_passing_verify0_called;
-static bool selftest_passing_verify0(zt_test* t)
+static bool selftest_passing_verify0(zt_t t)
 {
     assert(t != NULL);
     selftest_passing_verify0_called = true;
@@ -283,7 +283,7 @@ static bool selftest_passing_verify0(zt_test* t)
 }
 
 static bool selftest_passing_verify1_called;
-static bool selftest_passing_verify1(zt_test* t, ZT_UNUSED zt_value arg1)
+static bool selftest_passing_verify1(zt_t t, ZT_UNUSED zt_value arg1)
 {
     assert(t != NULL);
     selftest_passing_verify1_called = true;
@@ -291,7 +291,7 @@ static bool selftest_passing_verify1(zt_test* t, ZT_UNUSED zt_value arg1)
 }
 
 static bool selftest_passing_verify2_called;
-static bool selftest_passing_verify2(zt_test* t, ZT_UNUSED zt_value arg1, ZT_UNUSED zt_value arg2)
+static bool selftest_passing_verify2(zt_t t, ZT_UNUSED zt_value arg1, ZT_UNUSED zt_value arg2)
 {
     assert(t != NULL);
     selftest_passing_verify2_called = true;
@@ -299,7 +299,7 @@ static bool selftest_passing_verify2(zt_test* t, ZT_UNUSED zt_value arg1, ZT_UNU
 }
 
 static bool selftest_passing_verify3_called;
-static bool selftest_passing_verify3(zt_test* t, ZT_UNUSED zt_value arg1, ZT_UNUSED zt_value arg2, ZT_UNUSED zt_value arg3)
+static bool selftest_passing_verify3(zt_t t, ZT_UNUSED zt_value arg1, ZT_UNUSED zt_value arg2, ZT_UNUSED zt_value arg3)
 {
     assert(t != NULL);
     selftest_passing_verify3_called = true;
@@ -1626,9 +1626,9 @@ static void test_quote_rune(void)
 }
 
 static bool selftest_stub_nested_test_case_visited;
-static void selftest_stub_nested_test_case(zt_test* test)
+static void selftest_stub_nested_test_case(zt_t t)
 {
-    assert(test != NULL);
+    assert(t != NULL);
     selftest_stub_nested_test_case_visited = true;
 }
 
@@ -1643,9 +1643,9 @@ static void selftest_stub_nested_test_suite(zt_visitor visitor)
 }
 
 static bool selftest_stub_test_case_visited;
-static void selftest_stub_test_case(zt_test* test)
+static void selftest_stub_test_case(zt_t t)
 {
-    assert(test != NULL);
+    assert(t != NULL);
     selftest_stub_test_case_visited = true;
 }
 
@@ -1716,7 +1716,7 @@ static void test_runner_visitor_visit_suite(void)
 }
 
 static bool selftest_case_pending_visited;
-static void selftest_case_pending(zt_test* t)
+static void selftest_case_pending(zt_t t)
 {
     selftest_case_pending_visited = true;
     assert(t->outcome == ZT_PENDING);
@@ -1745,7 +1745,7 @@ static void test_runner_visitor_visit_case_outcome_pending(void)
 }
 
 static bool selftest_case_passed_visited;
-static void selftest_case_passed(zt_test* t)
+static void selftest_case_passed(zt_t t)
 {
     selftest_case_passed_visited = true;
     t->outcome = ZT_PASSED;
@@ -1774,7 +1774,7 @@ static void test_runner_visitor_visit_case_outcome_passed(void)
 }
 
 static bool selftest_case_failed_visited;
-static void selftest_case_failed(zt_test* t)
+static void selftest_case_failed(zt_t t)
 {
     selftest_case_failed_visited = true;
     t->outcome = ZT_FAILED;
@@ -1803,7 +1803,7 @@ static void test_runner_visitor_visit_case_outcome_failed(void)
 }
 
 static bool selftest_case_bogus_outcome_visited;
-static void selftest_case_bogus_outcome(zt_test* t)
+static void selftest_case_bogus_outcome(zt_t t)
 {
     selftest_case_bogus_outcome_visited = true;
     t->outcome = 42;
@@ -1855,24 +1855,24 @@ static void test_main_listing_tests(void)
     zt_mock_stderr = NULL;
 }
 
-static void selftest_passing_check(zt_test* t)
+static void selftest_passing_check(zt_t t)
 {
     zt_check(t, ZT_TRUE(1));
     zt_check(t, ZT_CMP_INT(1, ==, 1));
 }
 
-static void selftest_failing_check(zt_test* t)
+static void selftest_failing_check(zt_t t)
 {
     zt_check(t, ZT_TRUE(0));
     zt_check(t, ZT_CMP_INT(1, !=, 1));
 }
 
-static void selftest_passing_assert(zt_test* t)
+static void selftest_passing_assert(zt_t t)
 {
     zt_assert(t, ZT_TRUE(1));
 }
 
-static void selftest_failing_assert(zt_test* t)
+static void selftest_failing_assert(zt_t t)
 {
     zt_assert(t, ZT_TRUE(0));
 }
