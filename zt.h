@@ -144,8 +144,7 @@ static inline zt_location zt_location_at(const char* fname, int lineno)
 
 struct zt_verifier;
 typedef struct zt_claim {
-    /* TODO: rename verifier to make_verifier */
-    struct zt_verifier (*verifier)(void);
+    struct zt_verifier (*make_verifier)(void);
     zt_value args[3];
     zt_location location;
 } zt_claim;

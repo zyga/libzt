@@ -431,7 +431,7 @@ static zt_outcome zt_run_tests_from(FILE* stream_out, FILE* stream_err, bool ver
 
 static bool zt_verify_claim(zt_test* test, const zt_claim* claim)
 {
-    zt_verifier verifier = claim->verifier();
+    zt_verifier verifier = claim->make_verifier();
     test->location = claim->location;
     switch (verifier.nargs) {
     case 0:
@@ -574,7 +574,7 @@ zt_claim zt_true(zt_location location, zt_value value)
     zt_claim claim;
     memset(&claim, 0, sizeof claim);
     claim.location = location;
-    claim.verifier = zt_verifier_for_true;
+    claim.make_verifier = zt_verifier_for_true;
     claim.args[0] = value;
     return claim;
 }
@@ -603,7 +603,7 @@ zt_claim zt_false(zt_location location, zt_value value)
     zt_claim claim;
     memset(&claim, 0, sizeof claim);
     claim.location = location;
-    claim.verifier = zt_verifier_for_false;
+    claim.make_verifier = zt_verifier_for_false;
     claim.args[0] = value;
     return claim;
 }
@@ -666,7 +666,7 @@ zt_claim zt_cmp_bool(zt_location location, zt_value left, zt_value rel, zt_value
     zt_claim claim;
     memset(&claim, 0, sizeof claim);
     claim.location = location;
-    claim.verifier = zt_verifier_for_boolean_relation;
+    claim.make_verifier = zt_verifier_for_boolean_relation;
     claim.args[0] = left;
     claim.args[1] = rel;
     claim.args[2] = right;
@@ -763,7 +763,7 @@ zt_claim zt_cmp_rune(zt_location location, zt_value left, zt_value rel, zt_value
     zt_claim claim;
     memset(&claim, 0, sizeof claim);
     claim.location = location;
-    claim.verifier = zt_verifier_for_rune_relation;
+    claim.make_verifier = zt_verifier_for_rune_relation;
     claim.args[0] = left;
     claim.args[1] = rel;
     claim.args[2] = right;
@@ -851,7 +851,7 @@ zt_claim zt_cmp_int(zt_location location, zt_value left, zt_value rel, zt_value 
     zt_claim claim;
     memset(&claim, 0, sizeof claim);
     claim.location = location;
-    claim.verifier = zt_verifier_for_integer_relation;
+    claim.make_verifier = zt_verifier_for_integer_relation;
     claim.args[0] = left;
     claim.args[1] = rel;
     claim.args[2] = right;
@@ -940,7 +940,7 @@ zt_claim zt_cmp_uint(zt_location location, zt_value left, zt_value rel, zt_value
     zt_claim claim;
     memset(&claim, 0, sizeof claim);
     claim.location = location;
-    claim.verifier = zt_verifier_for_unsigned_relation;
+    claim.make_verifier = zt_verifier_for_unsigned_relation;
     claim.args[0] = left;
     claim.args[1] = rel;
     claim.args[2] = right;
@@ -1041,7 +1041,7 @@ zt_claim zt_cmp_cstr(zt_location location, zt_value left, zt_value rel, zt_value
     zt_claim claim;
     memset(&claim, 0, sizeof claim);
     claim.location = location;
-    claim.verifier = zt_verifier_for_string_relation;
+    claim.make_verifier = zt_verifier_for_string_relation;
     claim.args[0] = left;
     claim.args[1] = rel;
     claim.args[2] = right;
@@ -1073,7 +1073,7 @@ zt_claim zt_null(zt_location location, zt_value value)
     zt_claim claim;
     memset(&claim, 0, sizeof claim);
     claim.location = location;
-    claim.verifier = zt_verifier_for_null;
+    claim.make_verifier = zt_verifier_for_null;
     claim.args[0] = value;
     return claim;
 }
@@ -1102,7 +1102,7 @@ zt_claim zt_not_null(zt_location location, zt_value value)
     zt_claim claim;
     memset(&claim, 0, sizeof claim);
     claim.location = location;
-    claim.verifier = zt_verifier_for_not_null;
+    claim.make_verifier = zt_verifier_for_not_null;
     claim.args[0] = value;
     return claim;
 }
