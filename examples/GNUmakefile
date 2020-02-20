@@ -1,7 +1,7 @@
 .PHONY: all clean
 
 CFLAGS ?= -Wall -Werror -O2
-LDFLAGS += -lzt
+LDLIBS += -lzt
 
 all: demo test-root-user
 clean:
