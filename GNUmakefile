@@ -15,7 +15,7 @@
 # along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
 
 NAME = libzt
-VERSION = 0.1
+VERSION = 0.2
 
 # Meta-targets that don't have specific specific commands
 .PHONY: $(sort all clean coverage fmt static-check check install uninstall dist distclean)

@@ -1,4 +1,4 @@
-Changes in 0.1.1:
+Changes in 0.2:
 
  * Argument type to all unit test functions was typedef'd
    to zt_t, to abbreviate the boilerplate text and to avoid
