@@ -7,7 +7,7 @@
 .Sh SYNOPSIS
 .In zt.h
 .Vt typedef struct zt_value { ... } zt_value;
-.Bl -column -offset indent "zt_value_kind " "unsigned_integer " Description"
+.Bl -column "zt_value_kind " "unsigned_integer " Description"
 .It Sy Type Ta Sy Entry Ta Sy Description
 .It Vt zt_value_kind Ta kind Ta Discriminator for the union
 .It Vt const char * Ta source Ta Source code used to compute the value
@@ -21,7 +21,7 @@
 .El
 .Pp
 .Vt typedef enum zt_value_kind { ... } zt_value_kind;
-.Bl -column -offset indent "ZT_NOTHING " " Description"
+.Bl -column "ZT_NOTHING " " Description"
 .It Sy Kind Ta Sy Description
 .It Vt ZT_NOTHING Ta Placeholder for unused values
 .It Vt ZT_BOOLEAN Ta zt_value.as.boolean is valid
