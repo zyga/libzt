@@ -253,6 +253,17 @@ static-check:: zt.c.PVS-Studio.log zt-test.c.PVS-Studio.log
 		--renderTypes errorfile $^ | srcdir=$(srcdir) abssrcdir=$(abspath $(srcdir)) awk -f $(srcdir)/.pvs-filter.awk)
 endif
 
+# Support for static analysis with Coverity, if installed.
+ifneq ($(shell command -v cov-build 2>/dev/null),)
+clean::
+	rm -rf cov-int
+	rm -f libzt-coverity.tar.gz
+cov-int: zt.c zt.h zt-test.c $(MAKEFILE_LIST)
+	cov-build --dir $@ $(MAKE)
+libzt-coverity.tar.gz: cov-int
+	tar zcf $@ $<
+# NOTE: coverity scan upload is not automated.
+endif
 
 # Support for static analysis using shellcheck, if installed.
 ifneq ($(shell command -v shellcheck 2>/dev/null),)
