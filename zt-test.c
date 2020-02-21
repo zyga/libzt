@@ -17,6 +17,16 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Libzt.  If not, see <https://www.gnu.org/licenses/>. */
 
+#ifdef __linux__
+#define _GNU_SOURCE
+#include <errno.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
 #include <assert.h>
 #include <ctype.h>
 #include <limits.h>
@@ -28,7 +38,50 @@
 
 static FILE* selftest_temporary_file(void)
 {
-    FILE* f = tmpfile();
+    FILE* f;
+#if defined(__linux__)
+    /* Hardened version for Linux. */
+    char tmpl[PATH_MAX];
+    const char* tmp_dir_name;
+    int fd;
+
+    tmp_dir_name = getenv("TMPDIR");
+    if (tmp_dir_name == NULL) {
+        tmp_dir_name = "/tmp";
+    }
+#if defined(O_TMPFILE)
+    fd = open(tmp_dir_name, O_TMPFILE | O_RDWR | O_EXCL, 0600);
+    if (fd < 0) {
+        if (errno != EOPNOTSUPP) {
+            perror("cannot open temporary file via O_TMPFILE");
+            exit(1);
+        }
+    }
+    tmpl[0] = '\0';
+#else
+    fd = -1;
+#endif
+    if (fd < 0) {
+        int n = snprintf(tmpl, sizeof tmpl - 1, "%s/libzt-test.XXXXXX", tmp_dir_name);
+        if (n < 0 || (size_t)n >= sizeof tmpl - 1) {
+            perror("cannot format temporary file name");
+            exit(1);
+        }
+        fd = mkostemp(tmpl, O_CLOEXEC);
+    }
+    if (fd < 0) {
+        perror("cannot open temporary file");
+        exit(1);
+    }
+    if (tmpl[0] != '\0' && unlink(tmpl) < 0) {
+        perror("cannot unlink temporary file");
+        exit(1);
+    }
+    f = fdopen(fd, "w+");
+#else
+    /* Portable version. */
+    f = tmpfile();
+#endif
     if (f == NULL) {
         perror("cannot open temporary file");
         exit(1);
