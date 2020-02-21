@@ -1,2 +1,3 @@
 usr/include/zt.h
 usr/lib/*/libzt.a
+usr/lib/*/libzt.so
