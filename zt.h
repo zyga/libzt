@@ -29,7 +29,7 @@ extern "C" {
 #define ZT_MINOR_VERSION 1
 
 struct zt_test;
-typedef struct zt_test *zt_t;
+typedef struct zt_test* zt_t;
 
 struct zt_visitor_vtab;
 typedef struct zt_visitor {
