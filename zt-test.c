@@ -99,6 +99,12 @@ static zt_test selftest_make_test(void)
     return t;
 }
 
+static void selftest_close_test(zt_t t)
+{
+    fclose(t->stream);
+    t->stream = NULL;
+}
+
 static void selftest_quote_str(FILE* stream, const char* str)
 {
     /* self-test quote function uses single-quotes. Meanwhile the production
@@ -185,12 +191,6 @@ static void selftest_stream_eq_at(FILE* stream, const char* file,
         fprintf(stderr, " ( <- expected)\n");
         exit(1);
     }
-}
-
-static void selftest_close_test(zt_t t)
-{
-    fclose(t->stream);
-    t->stream = NULL;
 }
 
 /* library version */
