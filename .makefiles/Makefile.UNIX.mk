@@ -22,7 +22,7 @@ CFLAGS ?= -Wall -Wextra -Wconversion -Wpedantic -Wchar-subscripts -Werror -O2
 CFLAGS += -Wno-overlength-strings
 ARFLAGS = -cr
 TARGET_ARCH ?=
-LIBS ?=
+LDLIBS ?=
 
 # Installation location
 DESTDIR ?=
@@ -151,7 +151,7 @@ install:: $(DESTDIR)$(bindir)/libzt-test
 uninstall::
 	rm -f $(DESTDIR)$(bindir)/libzt-test
 libzt-test: zt-test.o
-	$(strip $(LINK.o) $^ $(LIBS) -o $@)
+	$(strip $(LINK.o) $^ $(LDLIBS) -o $@)
 $(DESTDIR)$(bindir)/libzt-test: libzt-test | $(DESTDIR)$(bindir)
 	install $^ $@
 zt-test.o: zt-test.c zt.c zt.h
