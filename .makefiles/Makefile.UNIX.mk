@@ -14,6 +14,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
 
+# Craft a better version if we have Git.
+ifneq ($(shell command -v git 2>/dev/null),)
+VERSION := $(or $(shell GIT_DIR=$(srcdir)/.git git describe --abbrev=10 --tags 2>/dev/null),$(VERSION))
+endif
+
 # Compiler defaults unless changed by GNUmakefile.configure.mk
 CPPFLAGS ?=
 CFLAGS ?= -Wall -Wextra -Wconversion -Wpedantic -Wchar-subscripts -Werror -O2
