@@ -1400,6 +1400,87 @@ static void test_verify_string_relation(void)
     selftest_close_test(&t);
 }
 
+static void test_verifier_for_pointer_relation(void)
+{
+    zt_verifier v = zt_verifier_for_pointer_relation();
+    assert(v.nargs == 3);
+    assert(v.func.args3 == zt_verify_pointer_relation);
+    assert(v.arg_infos[0].kind == ZT_POINTER);
+    assert(strcmp(v.arg_infos[0].kind_mismatch_msg,
+               "left hand side is not a pointer")
+        == 0);
+    assert(v.arg_infos[1].kind == ZT_STRING);
+    assert(strcmp(v.arg_infos[1].kind_mismatch_msg, "relation is not a string") == 0);
+    assert(v.arg_infos[2].kind == ZT_POINTER);
+    assert(strcmp(v.arg_infos[2].kind_mismatch_msg,
+               "right hand side is not a pointer")
+        == 0);
+}
+
+static void test_verify_pointer_relation(void)
+{
+    zt_test t;
+    const char* non_null_ptr = "";
+
+    /* passing == */
+    t = selftest_make_test();
+    assert(zt_verify_pointer_relation(&t, zt_pack_pointer(NULL, "left"),
+               zt_pack_string("==", "=="),
+               zt_pack_pointer(NULL, "right"))
+        == true);
+    selftest_stream_eq(t.stream, "");
+    selftest_close_test(&t);
+
+    /* failing == */
+    t = selftest_make_test();
+    assert(zt_verify_pointer_relation(&t, zt_pack_pointer(NULL, "left"),
+               zt_pack_string("==", "=="),
+               zt_pack_pointer(non_null_ptr, "right"))
+        == false);
+    selftest_stream_eq_at(
+        t.stream, __FILE__, __LINE__, "file.c:13: assertion left == right failed because %p != %p\n", NULL, non_null_ptr);
+    selftest_close_test(&t);
+
+    /* passing != */
+    t = selftest_make_test();
+    assert(zt_verify_pointer_relation(&t, zt_pack_pointer("abc", "left"),
+               zt_pack_string("!=", "!="),
+               zt_pack_pointer("xyz", "right"))
+        == true);
+    selftest_stream_eq(t.stream, "");
+    selftest_close_test(&t);
+
+    /* failing != */
+    t = selftest_make_test();
+    assert(zt_verify_pointer_relation(&t, zt_pack_pointer(non_null_ptr, "left"),
+               zt_pack_string("!=", "!="),
+               zt_pack_pointer(non_null_ptr, "right"))
+        == false);
+    selftest_stream_eq_at(
+        t.stream, __FILE__, __LINE__, "file.c:13: assertion left != right failed because %p == %p\n", non_null_ptr, non_null_ptr);
+    selftest_close_test(&t);
+
+    /* unsupported relation */
+    t = selftest_make_test();
+    assert(zt_verify_pointer_relation(&t, zt_pack_pointer("abc", "left"),
+               zt_pack_string("~", "~"),
+               zt_pack_pointer("xyz", "right"))
+        == false);
+    selftest_stream_eq(
+        t.stream, "file.c:13: assertion left ~ right uses unsupported relation\n");
+    selftest_close_test(&t);
+
+    /* inconsistent relation */
+    t = selftest_make_test();
+    assert(zt_verify_pointer_relation(&t, zt_pack_pointer("abc", "left"),
+               zt_pack_string("==", "!="),
+               zt_pack_pointer("xyz", "right"))
+        == false);
+    selftest_stream_eq(
+        t.stream, "file.c:13: assertion left != right uses inconsistent relation ==\n");
+    selftest_close_test(&t);
+}
+
 /* verifier for null. */
 
 static void test_verifier_for_null(void)
@@ -1616,6 +1697,32 @@ static void test_ZT_CMP_CSTR(void)
 
     assert(zt_value_kind_of(claim.args[2]) == ZT_STRING);
     assert(strcmp(claim.args[2].as.string, "bar") == 0);
+    assert(strcmp(zt_source_of(claim.args[2]), "b") == 0);
+}
+
+static void test_ZT_CMP_PTR(void)
+{
+    int life = 42, not_life = 13;
+    int *a, *b;
+    zt_claim claim;
+
+    a = &life;
+    b = &not_life;
+    claim = ZT_CMP_PTR(a, ==, b);
+    assert(strcmp(claim.location.fname, __FILE__) == 0);
+    assert(claim.location.lineno == __LINE__ - 2);
+    assert(claim.make_verifier == zt_verifier_for_pointer_relation);
+
+    assert(zt_value_kind_of(claim.args[0]) == ZT_POINTER);
+    assert(claim.args[0].as.pointer == &life);
+    assert(strcmp(zt_source_of(claim.args[0]), "a") == 0);
+
+    assert(zt_value_kind_of(claim.args[1]) == ZT_STRING);
+    assert(strcmp(claim.args[1].as.string, "==") == 0);
+    assert(strcmp(zt_source_of(claim.args[1]), "==") == 0);
+
+    assert(zt_value_kind_of(claim.args[2]) == ZT_POINTER);
+    assert(claim.args[2].as.pointer == &not_life);
     assert(strcmp(zt_source_of(claim.args[2]), "b") == 0);
 }
 
@@ -2066,6 +2173,9 @@ int main(ZT_UNUSED int argc, ZT_UNUSED char** argv, ZT_UNUSED char** envp)
     test_verifier_for_string_relation();
     test_verify_string_relation();
 
+    test_verifier_for_pointer_relation();
+    test_verify_pointer_relation();
+
     test_verifier_for_null();
     test_verify_null();
 
@@ -2079,6 +2189,7 @@ int main(ZT_UNUSED int argc, ZT_UNUSED char** argv, ZT_UNUSED char** envp)
     test_ZT_CMP_INT();
     test_ZT_CMP_UINT();
     test_ZT_CMP_CSTR();
+    test_ZT_CMP_PTR();
     test_ZT_NULL();
     test_ZT_NOT_NULL();
 

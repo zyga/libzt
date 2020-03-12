@@ -1106,3 +1106,62 @@ zt_claim zt_not_null(zt_location location, zt_value value)
     claim.args[0] = value;
     return claim;
 }
+
+static bool zt_verify_pointer_relation(zt_test* test, zt_value left, zt_value rel,
+    zt_value right)
+{
+    zt_binary_relation bin_rel;
+
+    if (zt_relation_inconsistent(rel)) {
+        return zt_test_failure(test, "assertion %s %s %s uses inconsistent relation %s",
+            zt_source_of(left), zt_source_of(rel), zt_source_of(right), rel.as.string);
+    }
+    bin_rel = zt_find_binary_relation(rel.as.string);
+    switch (bin_rel) {
+    case ZT_REL_EQ:
+        if (left.as.pointer == right.as.pointer) {
+            return true;
+        }
+        break;
+    case ZT_REL_NE:
+        if (left.as.pointer != right.as.pointer) {
+            return true;
+        }
+        break;
+    default:
+        return zt_test_failure(test, "assertion %s %s %s uses unsupported relation",
+            zt_source_of(left), zt_source_of(rel), zt_source_of(right));
+    }
+    return zt_test_failure(test, "assertion %s %s %s failed because %p %s %p",
+        zt_source_of(left), rel.as.string, zt_source_of(right),
+        left.as.pointer,
+        zt_binary_relation_as_text(zt_invert_binary_relation(bin_rel)),
+        right.as.pointer);
+}
+
+static zt_verifier zt_verifier_for_pointer_relation(void)
+{
+    zt_verifier verifier;
+    memset(&verifier, 0, sizeof verifier);
+    verifier.func.args3 = zt_verify_pointer_relation;
+    verifier.nargs = 3;
+    verifier.arg_infos[0].kind = ZT_POINTER;
+    verifier.arg_infos[0].kind_mismatch_msg = "left hand side is not a pointer";
+    verifier.arg_infos[1].kind = ZT_STRING;
+    verifier.arg_infos[1].kind_mismatch_msg = "relation is not a string";
+    verifier.arg_infos[2].kind = ZT_POINTER;
+    verifier.arg_infos[2].kind_mismatch_msg = "right hand side is not a pointer";
+    return verifier;
+}
+
+zt_claim zt_cmp_ptr(zt_location location, zt_value left, zt_value rel, zt_value right)
+{
+    zt_claim claim;
+    memset(&claim, 0, sizeof claim);
+    claim.location = location;
+    claim.make_verifier = zt_verifier_for_pointer_relation;
+    claim.args[0] = left;
+    claim.args[1] = rel;
+    claim.args[2] = right;
+    return claim;
+}

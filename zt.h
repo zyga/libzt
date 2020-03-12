@@ -207,6 +207,13 @@ zt_claim zt_not_null(zt_location location, zt_value value);
         zt_pack_string(#rel, #rel),    \
         zt_pack_string((right), #right))
 
+#define ZT_CMP_PTR(left, rel, right)    \
+    zt_cmp_ptr(                         \
+        ZT_CURRENT_LOCATION(),          \
+        zt_pack_pointer((left), #left), \
+        zt_pack_string(#rel, #rel),     \
+        zt_pack_pointer((right), #right))
+
 #define ZT_NULL(value)         \
     zt_null(                   \
         ZT_CURRENT_LOCATION(), \

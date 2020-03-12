@@ -5,6 +5,7 @@ VERS_0_1 {
 		zt_cmp_bool;
 		zt_cmp_cstr;
 		zt_cmp_int;
+		zt_cmp_ptr;
 		zt_cmp_rune;
 		zt_cmp_uint;
 		zt_false;

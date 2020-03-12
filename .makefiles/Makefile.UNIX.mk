@@ -171,14 +171,15 @@ dist:: $(NAME)_$(VERSION).tar.gz
 $(NAME)_$(VERSION).tar.gz: $(sort $(addprefix $(srcdir)/, \
 	zt.c zt.h zt-test.c libzt.map libzt.export_list \
 	man/ZT_CMP_BOOL.3 man/ZT_CMP_INT.3 man/ZT_CMP_RUNE.3 man/ZT_CMP_UINT.3 \
-	man/ZT_CURRENT_LOCATION.3 man/ZT_FALSE.3 man/ZT_NOT_NULL.3 \
-	man/ZT_NULL.3 man/ZT_TRUE.3 man/libzt-test.1 man/libzt.3 man/zt_check.3 \
-	man/zt_claim.3 man/zt_location.3 man/zt_location_at.3 man/zt_main.3 \
-	man/zt_pack_boolean.3 man/zt_pack_integer.3 man/zt_pack_nothing.3 \
-	man/zt_pack_pointer.3 man/zt_pack_rune.3 man/zt_pack_string.3 \
-	man/zt_pack_unsigned.3 man/zt_test.3 man/zt_test_case_func.3 \
-	man/zt_test_suite_func.3 man/zt_value.3 man/zt_visit_test_case.3 \
-	man/zt_visitor.3 examples/demo.c examples/test-root-user.c \
+	man/ZT_CMP_PTR.3 man/ZT_CURRENT_LOCATION.3 man/ZT_FALSE.3 \
+	man/ZT_NOT_NULL.3 man/ZT_NULL.3 man/ZT_TRUE.3 man/libzt-test.1 \
+	man/libzt.3 man/zt_check.3 man/zt_claim.3 man/zt_location.3 \
+	man/zt_location_at.3 man/zt_main.3 man/zt_pack_boolean.3 \
+	man/zt_pack_integer.3 man/zt_pack_nothing.3 man/zt_pack_pointer.3 \
+	man/zt_pack_rune.3 man/zt_pack_string.3 man/zt_pack_unsigned.3 \
+	man/zt_test.3 man/zt_test_case_func.3 man/zt_test_suite_func.3 \
+	man/zt_value.3 man/zt_visit_test_case.3 man/zt_visitor.3 examples/demo.c \
+	examples/test-root-user.c \
 	examples/GNUmakefile configure GNUmakefile .makefiles/Makefile.Darwin.mk \
 	.makefiles/Makefile.FreeBSD.mk .makefiles/Makefile.Linux.mk \
 	.makefiles/Makefile.NetBSD.mk .makefiles/Makefile.OpenBSD.mk \
