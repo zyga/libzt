@@ -65,7 +65,7 @@ typedef struct zt_value {
         int integer;
         unsigned unsigned_integer;
         const char* string;
-        void* pointer;
+        const void* pointer;
     } as;
     const char* source;
     zt_value_kind kind;
@@ -118,7 +118,7 @@ static inline zt_value zt_pack_string(const char* value, const char* source)
     return v;
 }
 
-static inline zt_value zt_pack_pointer(void* value, const char* source)
+static inline zt_value zt_pack_pointer(const void* value, const char* source)
 {
     zt_value v;
     v.as.pointer = value;
