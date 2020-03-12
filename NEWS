@@ -1,3 +1,9 @@
+Changes in 0.3:
+
+ * Pointers captured in zt_value by zt_pack_pointer() are now constant.
+   This allows testing pointers to constants with ZT_NULL and ZT_NOT_NULL.
+   This does not impact the ABI.
+
 Changes in 0.2:
 
  * Argument type to all unit test functions was typedef'd
