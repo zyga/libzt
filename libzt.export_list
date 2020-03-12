@@ -3,6 +3,7 @@ _zt_check
 _zt_cmp_bool
 _zt_cmp_cstr
 _zt_cmp_int
+_zt_cmp_ptr
 _zt_cmp_rune
 _zt_cmp_uint
 _zt_false
