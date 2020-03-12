@@ -4,6 +4,9 @@ Changes in 0.3:
    This allows testing pointers to constants with ZT_NULL and ZT_NOT_NULL.
    This does not impact the ABI.
 
+ * Added ZT_CMP_PTR for comparing pointers for equality and inequality.
+   Other relations are explicitly left out, at least for now.
+
 Changes in 0.2:
 
  * Argument type to all unit test functions was typedef'd
