@@ -283,6 +283,10 @@ endif
 ifneq ($(shell command -v clang-format 2>/dev/null),)
 fmt:: $(wildcard $(srcdir)/*.[ch] $(srcdir)/examples/*.[ch])
 	clang-format -i -style=WebKit $^
+else
+fmt:
+	echo "error: clang-format not found, cannot format" >&2
+	exit 1
 endif
 
 # GNU man can be used to perform rudimentary validation of manual pages.
