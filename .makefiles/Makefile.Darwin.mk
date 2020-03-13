@@ -29,10 +29,10 @@ uninstall::
 	rm -f $(DESTDIR)$(libdir)/libzt.dylib
 	rm -f $(DESTDIR)$(libdir)/libzt.1.dylib
 libzt.1.dylib: LDFLAGS += -dynamiclib -fvisibility=hidden
-libzt.1.dylib: LDFLAGS += -exported_symbols_list=libzt.export_list
+libzt.1.dylib: LDFLAGS += -exported_symbols_list=$(srcdir)/libzt.export_list
 libzt.1.dylib: LDFLAGS += -compatibility_version 1.0 -current_version 1.0
-libzt.1.dylib: zt.o
-	$(strip $(LINK.o) $^ $(LIBS) -o $@)
+libzt.1.dylib: zt.o $(srcdir)/libzt.export_list
+	$(strip $(LINK.o) $(filter %.o,$^) $(LIBS) -o $@)
 libzt.dylib: | libzt.1.dylib
 	ln -s $| $@
 $(DESTDIR)$(libdir)/libzt.1.dylib: libzt.1.dylib | $(DESTDIR)$(libdir)
