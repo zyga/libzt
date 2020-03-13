@@ -157,6 +157,7 @@ zt_claim zt_false(zt_location location, zt_value value);
 zt_claim zt_cmp_bool(zt_location location, zt_value left, zt_value rel, zt_value right);
 zt_claim zt_cmp_rune(zt_location location, zt_value left, zt_value rel, zt_value right);
 zt_claim zt_cmp_int(zt_location location, zt_value left, zt_value rel, zt_value right);
+zt_claim zt_cmp_ptr(zt_location location, zt_value left, zt_value rel, zt_value right);
 zt_claim zt_cmp_uint(zt_location location, zt_value left, zt_value rel, zt_value right);
 zt_claim zt_cmp_cstr(zt_location location, zt_value left, zt_value rel, zt_value right);
 zt_claim zt_null(zt_location location, zt_value value);
