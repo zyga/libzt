@@ -61,6 +61,22 @@ zt_value zt_pack_rune(int value, const char* source)
     return v;
 }
 
+static void zt_promote_value(zt_value* v)
+{
+    switch (v->kind) {
+    case ZT_INTEGER:
+        v->as.intmax = v->as.integer;
+        v->kind = ZT_INTMAX;
+        break;
+    case ZT_UNSIGNED:
+        v->as.uintmax = v->as.unsigned_integer;
+        v->kind = ZT_UINTMAX;
+        break;
+    default:
+        break;
+    }
+}
+
 /** zt_binary_relation describes one of typical binary relations. */
 typedef enum zt_binary_relation {
     ZT_REL_INVALID,
@@ -787,32 +803,32 @@ static bool zt_verify_integer_relation(zt_test* test, zt_value left, zt_value re
     bin_rel = zt_find_binary_relation(rel.as.string);
     switch (bin_rel) {
     case ZT_REL_EQ:
-        if (left.as.integer == right.as.integer) {
+        if (left.as.intmax == right.as.intmax) {
             return true;
         }
         break;
     case ZT_REL_NE:
-        if (left.as.integer != right.as.integer) {
+        if (left.as.intmax != right.as.intmax) {
             return true;
         }
         break;
     case ZT_REL_LE:
-        if (left.as.integer <= right.as.integer) {
+        if (left.as.intmax <= right.as.intmax) {
             return true;
         }
         break;
     case ZT_REL_GE:
-        if (left.as.integer >= right.as.integer) {
+        if (left.as.intmax >= right.as.intmax) {
             return true;
         }
         break;
     case ZT_REL_LT:
-        if (left.as.integer < right.as.integer) {
+        if (left.as.intmax < right.as.intmax) {
             return true;
         }
         break;
     case ZT_REL_GT:
-        if (left.as.integer > right.as.integer) {
+        if (left.as.intmax > right.as.intmax) {
             return true;
         }
         break;
@@ -820,10 +836,10 @@ static bool zt_verify_integer_relation(zt_test* test, zt_value left, zt_value re
         return zt_test_failure(test, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right));
     }
-    return zt_test_failure(test, "assertion %s %s %s failed because %d %s %d",
+    return zt_test_failure(test, "assertion %s %s %s failed because %jd %s %jd",
         zt_source_of(left), zt_source_of(rel), zt_source_of(right),
-        left.as.integer, zt_binary_relation_as_text(zt_invert_binary_relation(bin_rel)),
-        right.as.integer);
+        left.as.intmax, zt_binary_relation_as_text(zt_invert_binary_relation(bin_rel)),
+        right.as.intmax);
 }
 
 /**
@@ -837,11 +853,11 @@ static zt_verifier zt_verifier_for_integer_relation(void)
     memset(&verifier, 0, sizeof verifier);
     verifier.func.args3 = zt_verify_integer_relation;
     verifier.nargs = 3;
-    verifier.arg_infos[0].kind = ZT_INTEGER;
+    verifier.arg_infos[0].kind = ZT_INTMAX;
     verifier.arg_infos[0].kind_mismatch_msg = "left hand side is not an integer";
     verifier.arg_infos[1].kind = ZT_STRING;
     verifier.arg_infos[1].kind_mismatch_msg = "relation is not a string";
-    verifier.arg_infos[2].kind = ZT_INTEGER;
+    verifier.arg_infos[2].kind = ZT_INTMAX;
     verifier.arg_infos[2].kind_mismatch_msg = "right hand side is not an integer";
     return verifier;
 }
@@ -855,6 +871,8 @@ zt_claim zt_cmp_int(zt_location location, zt_value left, zt_value rel, zt_value 
     claim.args[0] = left;
     claim.args[1] = rel;
     claim.args[2] = right;
+    zt_promote_value(&claim.args[0]);
+    zt_promote_value(&claim.args[2]);
     return claim;
 }
 
@@ -875,32 +893,32 @@ static bool zt_verify_unsigned_relation(zt_test* test, zt_value left, zt_value r
     bin_rel = zt_find_binary_relation(rel.as.string);
     switch (bin_rel) {
     case ZT_REL_EQ:
-        if (left.as.unsigned_integer == right.as.unsigned_integer) {
+        if (left.as.uintmax == right.as.uintmax) {
             return true;
         }
         break;
     case ZT_REL_NE:
-        if (left.as.unsigned_integer != right.as.unsigned_integer) {
+        if (left.as.uintmax != right.as.uintmax) {
             return true;
         }
         break;
     case ZT_REL_LE:
-        if (left.as.unsigned_integer <= right.as.unsigned_integer) {
+        if (left.as.uintmax <= right.as.uintmax) {
             return true;
         }
         break;
     case ZT_REL_GE:
-        if (left.as.unsigned_integer >= right.as.unsigned_integer) {
+        if (left.as.uintmax >= right.as.uintmax) {
             return true;
         }
         break;
     case ZT_REL_LT:
-        if (left.as.unsigned_integer < right.as.unsigned_integer) {
+        if (left.as.uintmax < right.as.uintmax) {
             return true;
         }
         break;
     case ZT_REL_GT:
-        if (left.as.unsigned_integer > right.as.unsigned_integer) {
+        if (left.as.uintmax > right.as.uintmax) {
             return true;
         }
         break;
@@ -908,11 +926,11 @@ static bool zt_verify_unsigned_relation(zt_test* test, zt_value left, zt_value r
         return zt_test_failure(test, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), rel.as.string, zt_source_of(right));
     }
-    return zt_test_failure(test, "assertion %s %s %s failed because %u %s %u",
+    return zt_test_failure(test, "assertion %s %s %s failed because %ju %s %ju",
         zt_source_of(left), rel.as.string, zt_source_of(right),
-        left.as.unsigned_integer,
+        left.as.uintmax,
         zt_binary_relation_as_text(zt_invert_binary_relation(bin_rel)),
-        right.as.unsigned_integer);
+        right.as.uintmax);
 }
 
 /**
@@ -926,11 +944,11 @@ static zt_verifier zt_verifier_for_unsigned_relation(void)
     memset(&verifier, 0, sizeof verifier);
     verifier.func.args3 = zt_verify_unsigned_relation;
     verifier.nargs = 3;
-    verifier.arg_infos[0].kind = ZT_UNSIGNED;
+    verifier.arg_infos[0].kind = ZT_UINTMAX;
     verifier.arg_infos[0].kind_mismatch_msg = "left hand side is not an unsigned integer";
     verifier.arg_infos[1].kind = ZT_STRING;
     verifier.arg_infos[1].kind_mismatch_msg = "relation is not a string";
-    verifier.arg_infos[2].kind = ZT_UNSIGNED;
+    verifier.arg_infos[2].kind = ZT_UINTMAX;
     verifier.arg_infos[2].kind_mismatch_msg = "right hand side is not an unsigned integer";
     return verifier;
 }
@@ -944,6 +962,8 @@ zt_claim zt_cmp_uint(zt_location location, zt_value left, zt_value rel, zt_value
     claim.args[0] = left;
     claim.args[1] = rel;
     claim.args[2] = right;
+    zt_promote_value(&claim.args[0]);
+    zt_promote_value(&claim.args[2]);
     return claim;
 }
 

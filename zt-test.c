@@ -245,8 +245,8 @@ static void test_pack_integer(void)
     zt_value v;
 
     v = zt_pack_integer(42, "42");
-    assert(zt_value_kind_of(v) == ZT_INTEGER);
-    assert(v.as.integer == 42);
+    assert(zt_value_kind_of(v) == ZT_INTMAX);
+    assert(v.as.intmax == 42);
     assert(strcmp(zt_source_of(v), "42") == 0);
 }
 
@@ -255,8 +255,8 @@ static void test_pack_unsigned(void)
     zt_value v;
 
     v = zt_pack_unsigned(42U, "42U");
-    assert(zt_value_kind_of(v) == ZT_UNSIGNED);
-    assert(v.as.unsigned_integer == 42U);
+    assert(zt_value_kind_of(v) == ZT_UINTMAX);
+    assert(v.as.uintmax == 42U);
     assert(strcmp(zt_source_of(v), "42U") == 0);
 }
 
@@ -278,6 +278,27 @@ static void test_pack_pointer(void)
     assert(zt_value_kind_of(v) == ZT_POINTER);
     assert(v.as.pointer == NULL);
     assert(strcmp(zt_source_of(v), "NULL") == 0);
+}
+
+static void test_promote_value(void)
+{
+    zt_value v;
+
+    v.kind = ZT_INTEGER;
+    v.as.integer = -1;
+    v.source = "-1";
+    zt_promote_value(&v);
+    assert(zt_value_kind_of(v) == ZT_INTMAX);
+    assert(v.as.intmax == -1);
+    assert(strcmp(zt_source_of(v), "-1") == 0);
+
+    v.kind = ZT_UNSIGNED;
+    v.as.unsigned_integer = 1U;
+    v.source = "1U";
+    zt_promote_value(&v);
+    assert(zt_value_kind_of(v) == ZT_UINTMAX);
+    assert(v.as.uintmax == 1U);
+    assert(strcmp(zt_source_of(v), "1U") == 0);
 }
 
 /* binary relation */
@@ -374,7 +395,7 @@ static zt_verifier selftest_passing_verifier1(void)
     memset(&verifier, 0, sizeof verifier);
     verifier.func.args1 = selftest_passing_verify1;
     verifier.nargs = 1;
-    verifier.arg_infos[0].kind = ZT_INTEGER;
+    verifier.arg_infos[0].kind = ZT_INTMAX;
     verifier.arg_infos[0].kind_mismatch_msg = "arg[0] type mismatch";
     return verifier;
 }
@@ -385,9 +406,9 @@ static zt_verifier selftest_passing_verifier2(void)
     memset(&verifier, 0, sizeof verifier);
     verifier.func.args2 = selftest_passing_verify2;
     verifier.nargs = 2;
-    verifier.arg_infos[0].kind = ZT_INTEGER;
+    verifier.arg_infos[0].kind = ZT_INTMAX;
     verifier.arg_infos[0].kind_mismatch_msg = "arg[0] type mismatch";
-    verifier.arg_infos[1].kind = ZT_INTEGER;
+    verifier.arg_infos[1].kind = ZT_INTMAX;
     verifier.arg_infos[1].kind_mismatch_msg = "arg[1] type mismatch";
     return verifier;
 }
@@ -398,11 +419,11 @@ static zt_verifier selftest_passing_verifier3(void)
     memset(&verifier, 0, sizeof verifier);
     verifier.func.args3 = selftest_passing_verify3;
     verifier.nargs = 3;
-    verifier.arg_infos[0].kind = ZT_INTEGER;
+    verifier.arg_infos[0].kind = ZT_INTMAX;
     verifier.arg_infos[0].kind_mismatch_msg = "arg[0] type mismatch";
-    verifier.arg_infos[1].kind = ZT_INTEGER;
+    verifier.arg_infos[1].kind = ZT_INTMAX;
     verifier.arg_infos[1].kind_mismatch_msg = "arg[1] type mismatch";
-    verifier.arg_infos[2].kind = ZT_INTEGER;
+    verifier.arg_infos[2].kind = ZT_INTMAX;
     verifier.arg_infos[2].kind_mismatch_msg = "arg[2] type mismatch";
     return verifier;
 }
@@ -910,13 +931,13 @@ static void test_verifier_for_integer_relation(void)
     zt_verifier v = zt_verifier_for_integer_relation();
     assert(v.nargs == 3);
     assert(v.func.args3 == zt_verify_integer_relation);
-    assert(v.arg_infos[0].kind == ZT_INTEGER);
+    assert(v.arg_infos[0].kind == ZT_INTMAX);
     assert(strcmp(v.arg_infos[0].kind_mismatch_msg,
                "left hand side is not an integer")
         == 0);
     assert(v.arg_infos[1].kind == ZT_STRING);
     assert(strcmp(v.arg_infos[1].kind_mismatch_msg, "relation is not a string") == 0);
-    assert(v.arg_infos[2].kind == ZT_INTEGER);
+    assert(v.arg_infos[2].kind == ZT_INTMAX);
     assert(strcmp(v.arg_infos[2].kind_mismatch_msg,
                "right hand side is not an integer")
         == 0);
@@ -1064,7 +1085,7 @@ static void test_verifier_for_unsigned_relation(void)
     zt_verifier v = zt_verifier_for_unsigned_relation();
     assert(v.nargs == 3);
     assert(v.func.args3 == zt_verify_unsigned_relation);
-    assert(v.arg_infos[0].kind == ZT_UNSIGNED);
+    assert(v.arg_infos[0].kind == ZT_UINTMAX);
     assert(strcmp(v.arg_infos[0].kind_mismatch_msg,
                "left hand side is not an unsigned integer")
         == 0);
@@ -1072,7 +1093,7 @@ static void test_verifier_for_unsigned_relation(void)
     assert(strcmp(v.arg_infos[1].kind_mismatch_msg,
                "relation is not a string")
         == 0);
-    assert(v.arg_infos[2].kind == ZT_UNSIGNED);
+    assert(v.arg_infos[2].kind == ZT_UINTMAX);
     assert(strcmp(v.arg_infos[2].kind_mismatch_msg,
                "right hand side is not an unsigned integer")
         == 0);
@@ -1637,7 +1658,7 @@ static void test_ZT_CMP_INT(void)
     assert(claim.location.lineno == __LINE__ - 2);
     assert(claim.make_verifier == zt_verifier_for_integer_relation);
 
-    assert(zt_value_kind_of(claim.args[0]) == ZT_INTEGER);
+    assert(zt_value_kind_of(claim.args[0]) == ZT_INTMAX);
     assert(claim.args[0].as.integer == 1);
     assert(strcmp(zt_source_of(claim.args[0]), "a") == 0);
 
@@ -1645,9 +1666,36 @@ static void test_ZT_CMP_INT(void)
     assert(strcmp(claim.args[1].as.string, "==") == 0);
     assert(strcmp(zt_source_of(claim.args[1]), "==") == 0);
 
-    assert(zt_value_kind_of(claim.args[2]) == ZT_INTEGER);
+    assert(zt_value_kind_of(claim.args[2]) == ZT_INTMAX);
     assert(claim.args[2].as.integer == -2);
     assert(strcmp(zt_source_of(claim.args[2]), "b") == 0);
+}
+
+static inline zt_value zt_pack_legacy_integer(int value, const char* source)
+{
+    zt_value v;
+    v.as.integer = value;
+    v.source = source;
+    v.kind = ZT_INTEGER;
+    return v;
+}
+
+static void test_zt_cmp_int_legacy(void)
+{
+    int a, b;
+    zt_claim claim;
+    zt_value left, rel, right;
+    a = 1;
+    b = -2;
+
+    left = zt_pack_legacy_integer(a, "a");
+    rel = zt_pack_string("==", "==");
+    right = zt_pack_legacy_integer(b, "b");
+    claim = zt_cmp_int(ZT_CURRENT_LOCATION(), left, rel, right);
+    assert(left.kind == ZT_INTEGER);
+    assert(right.kind == ZT_INTEGER);
+    assert(claim.args[0].kind == ZT_INTMAX);
+    assert(claim.args[2].kind == ZT_INTMAX);
 }
 
 static void test_ZT_CMP_UINT(void)
@@ -1662,7 +1710,7 @@ static void test_ZT_CMP_UINT(void)
     assert(claim.location.lineno == __LINE__ - 2);
     assert(claim.make_verifier == zt_verifier_for_unsigned_relation);
 
-    assert(zt_value_kind_of(claim.args[0]) == ZT_UNSIGNED);
+    assert(zt_value_kind_of(claim.args[0]) == ZT_UINTMAX);
     assert(claim.args[0].as.unsigned_integer == 1);
     assert(strcmp(zt_source_of(claim.args[0]), "a") == 0);
 
@@ -1670,9 +1718,36 @@ static void test_ZT_CMP_UINT(void)
     assert(strcmp(claim.args[1].as.string, "==") == 0);
     assert(strcmp(zt_source_of(claim.args[1]), "==") == 0);
 
-    assert(zt_value_kind_of(claim.args[2]) == ZT_UNSIGNED);
+    assert(zt_value_kind_of(claim.args[2]) == ZT_UINTMAX);
     assert(claim.args[2].as.unsigned_integer == 2);
     assert(strcmp(zt_source_of(claim.args[2]), "b") == 0);
+}
+
+static inline zt_value zt_pack_legacy_unsigned(unsigned value, const char* source)
+{
+    zt_value v;
+    v.source = source;
+    v.as.unsigned_integer = value;
+    v.kind = ZT_UNSIGNED;
+    return v;
+}
+
+static void test_zt_cmp_uint_legacy(void)
+{
+    unsigned int a, b;
+    zt_claim claim;
+    zt_value left, rel, right;
+    a = 1;
+    b = 2;
+
+    left = zt_pack_legacy_unsigned(a, "a");
+    rel = zt_pack_string("==", "==");
+    right = zt_pack_legacy_unsigned(b, "b");
+    claim = zt_cmp_uint(ZT_CURRENT_LOCATION(), left, rel, right);
+    assert(left.kind == ZT_UNSIGNED);
+    assert(right.kind == ZT_UNSIGNED);
+    assert(claim.args[0].kind == ZT_UINTMAX);
+    assert(claim.args[2].kind == ZT_UINTMAX);
 }
 
 static void test_ZT_CMP_CSTR(void)
@@ -2133,6 +2208,7 @@ int main(ZT_UNUSED int argc, ZT_UNUSED char** argv, ZT_UNUSED char** envp)
     test_pack_unsigned();
     test_pack_string();
     test_pack_pointer();
+    test_promote_value();
 
     test_find_binary_relation();
     test_invert_binary_relation();
@@ -2187,7 +2263,9 @@ int main(ZT_UNUSED int argc, ZT_UNUSED char** argv, ZT_UNUSED char** envp)
     test_ZT_CMP_BOOL();
     test_ZT_CMP_RUNE();
     test_ZT_CMP_INT();
+    test_zt_cmp_int_legacy();
     test_ZT_CMP_UINT();
+    test_zt_cmp_uint_legacy();
     test_ZT_CMP_CSTR();
     test_ZT_CMP_PTR();
     test_ZT_NULL();

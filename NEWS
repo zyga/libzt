@@ -7,6 +7,22 @@ Changes in 0.3:
  * Added ZT_CMP_PTR for comparing pointers for equality and inequality.
    Other relations are explicitly left out, at least for now.
 
+ * ZT_CMP_INT and ZT_CMP_UINT now support maximum integral types of the
+   architecture. This allows ZT_CMP_UINT to safely work with size_t values.
+
+   This is achieved in a backwards compatible way. Existing test programs
+   compiled and linked with libzt 0.1 or 0.2 retain their current semantic.
+
+   The type zt_value has grown two new kinds, ZT_INTMAX and ZT_UINTMAX,
+   along with new union members. The static inline pack functions
+   zt_pack_integer and zt_pack_unsigned now take intmax_t and uintmax_t
+   arguments respectively. Since they are always inlined this is not an
+   ABI break. Test programs built with older definitions of the two pack
+   functions use distinct kind (ZT_INTEGER instead of ZT_INTMAX and
+   ZT_UNSIGNED instead of ZT_UINTMAX) which is now detected and handled
+   by zt_cmp_int and zt_cmp_uint. Internally the values are promoted
+   and comparison is always performed on the extended types.
+
 Changes in 0.2:
 
  * Argument type to all unit test functions was typedef'd

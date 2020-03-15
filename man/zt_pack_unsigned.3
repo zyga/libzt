@@ -8,7 +8,7 @@
 .In zt.h
 .Ft zt_value
 .Fo zt_pack_unsigned
-.Fa "unsigned value"
+.Fa "uintmax_t value"
 .Fa "const char *source"
 .Fc
 .Sh DESCRIPTION
@@ -35,5 +35,15 @@ The packed value.
 .Sh HISTORY
 .Nm
 first appeared in libzt 0.1
+.Pp
+In libzt 0.3 the type of the first argument changed to
+.Nm uintmax_t ,
+to accommodate for wider values. The resulting value structure encodes the
+new corresponding kind,
+.Nm ZT_UINTMAX .
+Note that
+.Nm zt_value
+objects created by programs compiled with earlier versions of libzt
+are still valid and are internally promoted to the wider type.
 .Sh AUTHORS
 .An "Zygmunt Krynicki" Aq Mt me@zygoon.pl
