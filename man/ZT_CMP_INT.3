@@ -67,5 +67,16 @@ The
 macro and the
 .Fn zt_cmp_int
 function first appeared in libzt 0.1
+.Pp
+Since libzt 0.3
+.Fn zt_cmp_int
+internally promotes
+.Nm left
+and
+.Nm right
+arguments from
+.Nm ZT_INTEGER
+to
+.Nm ZT_INTMAX .
 .Sh AUTHORS
 .An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

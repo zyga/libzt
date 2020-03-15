@@ -52,10 +52,12 @@ typedef enum zt_value_kind {
     ZT_NOTHING,
     ZT_BOOLEAN,
     ZT_RUNE, /* Rune is a more practical character type. */
-    ZT_INTEGER,
-    ZT_UNSIGNED,
+    ZT_INTEGER, /* Deprecated. Promoted to ZT_INTMAX */
+    ZT_UNSIGNED, /* Deprecated. Promoted to ZT_UINTMAX */
     ZT_STRING,
-    ZT_POINTER
+    ZT_POINTER,
+    ZT_INTMAX,
+    ZT_UINTMAX
 } zt_value_kind;
 
 typedef struct zt_value {
@@ -66,6 +68,8 @@ typedef struct zt_value {
         unsigned unsigned_integer;
         const char* string;
         const void* pointer;
+        intmax_t intmax;
+        uintmax_t uintmax;
     } as;
     const char* source;
     zt_value_kind kind;
@@ -91,21 +95,21 @@ static inline zt_value zt_pack_boolean(bool value, const char* source)
 
 zt_value zt_pack_rune(int value, const char* source);
 
-static inline zt_value zt_pack_integer(int value, const char* source)
+static inline zt_value zt_pack_integer(intmax_t value, const char* source)
 {
     zt_value v;
-    v.as.integer = value;
+    v.as.intmax = value;
     v.source = source;
-    v.kind = ZT_INTEGER;
+    v.kind = ZT_INTMAX;
     return v;
 }
 
-static inline zt_value zt_pack_unsigned(unsigned value, const char* source)
+static inline zt_value zt_pack_unsigned(uintmax_t value, const char* source)
 {
     zt_value v;
     v.source = source;
-    v.as.unsigned_integer = value;
-    v.kind = ZT_UNSIGNED;
+    v.as.uintmax = value;
+    v.kind = ZT_UINTMAX;
     return v;
 }
 

@@ -18,6 +18,8 @@
 .It Vt int Ta as.rune Ta Value when used as ZT_RUNE
 .It Vt const char * Ta as.string Ta Value when used as ZT_STRING
 .It Vt const void * Ta as.pointer Ta Value when used as ZT_POINTER
+.It Vt intmax_t Ta as.intmax Ta Value when used as ZT_INTMAX
+.It Vt uintmax_t Ta as.uintmax Ta Value when used as ZT_UINTMAX
 .El
 .Pp
 .Vt typedef enum zt_value_kind { ... } zt_value_kind;
@@ -25,11 +27,13 @@
 .It Sy Kind Ta Sy Description
 .It Vt ZT_NOTHING Ta Placeholder for unused values
 .It Vt ZT_BOOLEAN Ta zt_value.as.boolean is valid
-.It Vt ZT_INTEGER Ta zt_value.as.integer is valid
-.It Vt ZT_UNSIGNED Ta zt_value.as.unsigned_integer is valid
+.It Vt ZT_INTEGER Ta zt_value.as.integer is valid (deprecated)
+.It Vt ZT_UNSIGNED Ta zt_value.as.unsigned_integer is valid (deprecated)
 .It Vt ZT_RUNE Ta zt_value.as.rune is valid
 .It Vt ZT_STRING Ta zt_value.as.string is valid
 .It Vt ZT_POINTER Ta zt_value.as.pointer is valid
+.It Vt ZT_INTMAX Ta zt_value.as.intmax is valid
+.It Vt ZT_UINTMAX Ta zt_value.as.uintmax is valid
 .El
 .Sh DESCRIPTION
 .Nm zt_value
@@ -54,6 +58,20 @@ type and into private verification functions that determine test outcome.
 .Pp
 Tests using binary relations encode the operator as an argument of kind
 .Em ZT_STRING .
+.Sh BUGS
+On some architectures
+.Nm ZT_INTEGER
+and
+.Nm ZT_UNSIGNED
+are too short to handle
+.Nm size_t
+and
+.Nm ssize_t
+values correctly. They are now deprecated and automatically promoted to
+.Nm ZT_INTMAX
+and
+.Nm ZT_UINTMAX
+respectively.
 .Sh SEE ALSO
 .Xr zt_visit_test_case 3 ,
 .Xr zt_visit_test_suite 3
@@ -62,5 +80,9 @@ Tests using binary relations encode the operator as an argument of kind
 and
 .Nm zt_value_kind
 first appeared in libzt 0.1
+.Pp
+.Nm ZT_INTMAX ,
+.Nm ZT_UINTMAX
+and the corresponding union members first appeared in libzt 0.3.
 .Sh AUTHORS
 .An "Zygmunt Krynicki" Aq Mt me@zygoon.pl
