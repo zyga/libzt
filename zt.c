@@ -368,7 +368,7 @@ static void zt_runner_visitor__visit_suite(void* id, zt_test_suite_func func,
 {
     zt_test_runner* runner = (zt_test_runner*)id;
     if (runner->verbose && runner->stream_out) {
-        fprintf(runner->stream_out, "%*c %s\n", runner->nesting * 3, '-', name);
+        fprintf(runner->stream_out, "%*c %s\n", runner->nesting * 3, '+', name);
     }
 
     runner->nesting++;

@@ -2162,7 +2162,7 @@ static void test_main_verbosely_running_passing_tests(void)
         zt_mock_stdout,
         "- selftest_passing_check ok\n"
         "- selftest_passing_assert ok\n"
-        "- selftest_empty_suite\n");
+        "+ selftest_empty_suite\n");
     selftest_stream_eq(zt_mock_stderr, "");
     fclose(zt_mock_stdout);
     fclose(zt_mock_stderr);
@@ -2184,7 +2184,7 @@ static void test_main_verbosely_running_failing_tests(void)
         zt_mock_stdout,
         "- selftest_failing_check failed\n"
         "- selftest_failing_assert failed\n"
-        "- selftest_empty_suite\n");
+        "+ selftest_empty_suite\n");
     selftest_stream_eq_at(
         zt_mock_stderr, __FILE__, __LINE__,
         "%s:%d: assertion failed because 0 is false\n"
@@ -2216,14 +2216,14 @@ static void test_main_verbosely_running_mixed_tests(void)
     assert(exit_code == EXIT_FAILURE);
     selftest_stream_eq(
         zt_mock_stdout,
-        "- selftest_passing_suite\n"
+        "+ selftest_passing_suite\n"
         "  - selftest_passing_check ok\n"
         "  - selftest_passing_assert ok\n"
-        "  - selftest_empty_suite\n"
-        "- selftest_failing_suite\n"
+        "  + selftest_empty_suite\n"
+        "+ selftest_failing_suite\n"
         "  - selftest_failing_check failed\n"
         "  - selftest_failing_assert failed\n"
-        "  - selftest_empty_suite\n"
+        "  + selftest_empty_suite\n"
         "- selftest_case_bogus_outcome outcome code 42 (?)\n");
     /* ignore stderr as we just care about the -v output. */
     fclose(zt_mock_stdout);
