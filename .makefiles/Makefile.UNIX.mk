@@ -237,7 +237,7 @@ clean::
 %.c.i: %.c
 	$(strip $(CC) $(CPPFLAGS) $< -E -o $@)
 
-%.c.PVS-Studio.log: %.c.i | %.c
+%.c.PVS-Studio.log: %.c.i ~/.config/PVS-Studio/PVS-Studio.lic | %.c
 	$(strip pvs-studio \
 		--cfg $(srcdir)/.pvs-studio.cfg \
 		--i-file $< \
