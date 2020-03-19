@@ -23,6 +23,9 @@ Changes in 0.3:
    by zt_cmp_int and zt_cmp_uint. Internally the values are promoted
    and comparison is always performed on the extended types.
 
+ * The function zt_main() now displays both the test case name and the outcome
+   of each test when invoked with "-v" command-line argument.
+
 Changes in 0.2:
 
  * Argument type to all unit test functions was typedef'd

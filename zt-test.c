@@ -2158,10 +2158,11 @@ static void test_main_verbosely_running_passing_tests(void)
 
     exit_code = zt_main(2, test_argv, NULL, selftest_passing_suite);
     assert(exit_code == EXIT_SUCCESS);
-    selftest_stream_eq(zt_mock_stdout, ""
-                                       "- selftest_passing_check\n"
-                                       "- selftest_passing_assert\n"
-                                       "- selftest_empty_suite\n");
+    selftest_stream_eq(
+        zt_mock_stdout,
+        "- selftest_passing_check ok\n"
+        "- selftest_passing_assert ok\n"
+        "- selftest_empty_suite\n");
     selftest_stream_eq(zt_mock_stderr, "");
     fclose(zt_mock_stdout);
     fclose(zt_mock_stderr);
@@ -2169,23 +2170,62 @@ static void test_main_verbosely_running_passing_tests(void)
     zt_mock_stderr = NULL;
 }
 
-static void test_main_running_failing_tests(void)
+static void test_main_verbosely_running_failing_tests(void)
 {
-    char* test_argv[] = { "a.out" };
+    char* test_argv[] = { "a.out", "-v" };
     int exit_code;
 
     zt_mock_stdout = selftest_temporary_file();
     zt_mock_stderr = selftest_temporary_file();
 
-    exit_code = zt_main(1, test_argv, NULL, selftest_failing_suite);
+    exit_code = zt_main(2, test_argv, NULL, selftest_failing_suite);
     assert(exit_code == EXIT_FAILURE);
-    selftest_stream_eq(zt_mock_stdout, "");
+    selftest_stream_eq(
+        zt_mock_stdout,
+        "- selftest_failing_check failed\n"
+        "- selftest_failing_assert failed\n"
+        "- selftest_empty_suite\n");
     selftest_stream_eq_at(
         zt_mock_stderr, __FILE__, __LINE__,
         "%s:%d: assertion failed because 0 is false\n"
         "%s:%d: assertion 1 != 1 failed because 1 == 1\n"
         "%s:%d: assertion failed because 0 is false\n",
-        __FILE__, __LINE__ - 84 - 3, __FILE__, __LINE__ - 83 - 3, __FILE__, __LINE__ - 73 - 3);
+        __FILE__, __LINE__ - 92, __FILE__, __LINE__ - 91, __FILE__, __LINE__ - 81);
+    fclose(zt_mock_stdout);
+    fclose(zt_mock_stderr);
+    zt_mock_stdout = NULL;
+    zt_mock_stderr = NULL;
+}
+
+static void selftest_mixed_suite(zt_visitor v)
+{
+    ZT_VISIT_TEST_SUITE(v, selftest_passing_suite);
+    ZT_VISIT_TEST_SUITE(v, selftest_failing_suite);
+    ZT_VISIT_TEST_CASE(v, selftest_case_bogus_outcome);
+}
+
+static void test_main_verbosely_running_mixed_tests(void)
+{
+    char* test_argv[] = { "a.out", "-v" };
+    int exit_code;
+
+    zt_mock_stdout = selftest_temporary_file();
+    zt_mock_stderr = selftest_temporary_file();
+
+    exit_code = zt_main(2, test_argv, NULL, selftest_mixed_suite);
+    assert(exit_code == EXIT_FAILURE);
+    selftest_stream_eq(
+        zt_mock_stdout,
+        "- selftest_passing_suite\n"
+        "  - selftest_passing_check ok\n"
+        "  - selftest_passing_assert ok\n"
+        "  - selftest_empty_suite\n"
+        "- selftest_failing_suite\n"
+        "  - selftest_failing_check failed\n"
+        "  - selftest_failing_assert failed\n"
+        "  - selftest_empty_suite\n"
+        "- selftest_case_bogus_outcome outcome code 42 (?)\n");
+    /* ignore stderr as we just care about the -v output. */
     fclose(zt_mock_stdout);
     fclose(zt_mock_stderr);
     zt_mock_stdout = NULL;
@@ -2284,7 +2324,8 @@ int main(ZT_UNUSED int argc, ZT_UNUSED char** argv, ZT_UNUSED char** envp)
     test_main_listing_tests();
     test_main_running_passing_tests();
     test_main_verbosely_running_passing_tests();
-    test_main_running_failing_tests();
+    test_main_verbosely_running_failing_tests();
+    test_main_verbosely_running_mixed_tests();
 
     test_stdout_stderr();
 

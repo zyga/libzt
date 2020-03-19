@@ -392,19 +392,28 @@ static void zt_runner_visitor__visit_case(void* id, zt_test_case_func func,
 #endif
     if (jump_result == 0) {
         if (runner->verbose && runner->stream_out) {
-            fprintf(runner->stream_out, "%*c %s\n", runner->nesting * 3, '-', name);
+            fprintf(runner->stream_out, "%*c %s", runner->nesting * 3, '-', name);
         }
         func(&test);
     }
     switch (test.outcome) {
     case ZT_PENDING:
     case ZT_PASSED:
+        if (runner->verbose && runner->stream_out) {
+            fprintf(runner->stream_out, " ok\n");
+        }
         runner->num_passed++;
         break;
     case ZT_FAILED:
+        if (runner->verbose && runner->stream_out) {
+            fprintf(runner->stream_out, " failed\n");
+        }
         runner->num_failed++;
         break;
     default:
+        if (runner->verbose && runner->stream_out) {
+            fprintf(runner->stream_out, " outcome code %d (?)\n", test.outcome);
+        }
         if (runner->stream_err) {
             fprintf(runner->stream_err, "%*c %s - unexpected outcome code %d\n",
                 runner->nesting * 3, '-', name, test.outcome);
