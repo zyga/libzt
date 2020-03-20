@@ -15,8 +15,20 @@ jobs:
       run: make
     - name: Run various checks
       run: make check
+  macos:
+    runs-on: macos-latest
+    needs: linux
+    steps:
+    - uses: actions/checkout@v2
+    - name: Configure
+      run: ./configure
+    - name: Build with Make
+      run: make
+    - name: Run various checks
+      run: make check
   windows:
     runs-on: windows-latest
+    needs: linux
     steps:
       - uses: actions/checkout@v2
       - uses: ilammy/msvc-dev-cmd@v1
