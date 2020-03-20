@@ -11,7 +11,7 @@
 #define ZT_TRUE(value) \\
   zt_true( \\
     ZT_CURRENT_LOCATION(), \\
-    zt_pack_boolean((value), #value)) \\
+    zt_pack_boolean((value), #value))
 .Ed
 .Ft zt_claim
 .Fo zt_true

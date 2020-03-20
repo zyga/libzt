@@ -9,11 +9,13 @@ EXPORTS
 	zt_cmp_ptr
 	zt_cmp_rune
 	zt_cmp_uint
+	zt_defer
 	zt_false
 	zt_main
 	zt_not_null
 	zt_null
 	zt_pack_rune
 	zt_true
+	zt_visit_resource
 	zt_visit_test_case
 	zt_visit_test_suite

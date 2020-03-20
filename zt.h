@@ -37,6 +37,11 @@ typedef struct zt_visitor {
     const struct zt_visitor_vtab* vtab;
 } zt_visitor;
 
+typedef enum zt_resource_kind {
+    ZT_RESOURCE_DEBUG_STREAM,
+    ZT_RESOURCE_DEFER_CLOSURES,
+} zt_resource_kind;
+
 typedef void (*zt_test_case_func)(zt_t);
 typedef void (*zt_test_suite_func)(zt_visitor);
 
@@ -44,6 +49,7 @@ int zt_main(int argc, char** argv, char** envp, zt_test_suite_func tsuite);
 
 void zt_visit_test_suite(zt_visitor v, zt_test_suite_func func, const char* name);
 void zt_visit_test_case(zt_visitor v, zt_test_case_func func, const char* name);
+void zt_visit_resource(zt_visitor v, zt_resource_kind kind, size_t count, void* data);
 
 #define ZT_VISIT_TEST_SUITE(v, tsuite) zt_visit_test_suite(v, tsuite, #tsuite)
 #define ZT_VISIT_TEST_CASE(v, tcase) zt_visit_test_case(v, tcase, #tcase)
@@ -145,6 +151,47 @@ static inline zt_location zt_location_at(const char* fname, int lineno)
 }
 
 #define ZT_CURRENT_LOCATION() zt_location_at(__FILE__, __LINE__)
+
+typedef void (*zt_closure_func0)(void);
+typedef void (*zt_closure_func1)(zt_value arg1);
+
+typedef struct zt_closure {
+    union {
+        zt_closure_func0 args0;
+        zt_closure_func1 args1;
+    } func;
+    zt_location location;
+    int nargs;
+    zt_value args[1];
+} zt_closure;
+
+static inline zt_closure zt_pack_closure0(zt_location location, zt_closure_func0 func)
+{
+    zt_closure c;
+    c.func.args0 = func;
+    c.location = location;
+    c.nargs = 0;
+    c.args[0] = zt_pack_nothing();
+    return c;
+}
+
+static inline zt_closure zt_pack_closure1(zt_location location, zt_closure_func1 func, zt_value arg1)
+{
+    zt_closure c;
+    c.func.args1 = func;
+    c.location = location;
+    c.nargs = 1;
+    c.args[0] = arg1;
+    return c;
+}
+
+void zt_defer(zt_t test, zt_closure closure);
+
+#define ZT_CLOSURE0(func) \
+    zt_pack_closure0(ZT_CURRENT_LOCATION(), (func))
+
+#define ZT_CLOSURE1(func, arg1) \
+    zt_pack_closure1(ZT_CURRENT_LOCATION(), (func), (arg1))
 
 struct zt_verifier;
 typedef struct zt_claim {

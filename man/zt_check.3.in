@@ -57,10 +57,16 @@ test on failure.
 Non-local exit from
 .Fn zt_assert
 is implemented using
-.Fn siglongjump .
-One should not depend on neither C++ destructors nor the GCC cleanup function extension for correct resource management.
+.Fn siglongjump
+or
+.Fn longjump ,
+depending on platform support. One should not depend on neither C++
+destructors nor the GCC cleanup function extension for correct resource
+management. Instead, please use
+.Fn zt_defer
+to arrange a function to be called after the test function returns.
 .Sh RETURN VALUES
-Neither function return anything. Failures are remembered inside the opaque
+Neither function returns anything. Failures are remembered inside the opaque
 .Nm zt_test
 structure passed by pointer (aka
 .Nm zt_t )

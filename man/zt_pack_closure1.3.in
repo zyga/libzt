@@ -1,0 +1,68 @@
+.Dd January 14, 2020
+.Os libzt @VERSION@
+.Dt zt_pack_closure1 3 PRM
+.Sh NAME
+.Nm zt_pack_closure1 ,
+.Nm ZT_CLOSURE1
+.Nd pack function closure with one argument
+.Sh SYNOPSIS
+.In zt.h
+.Ft zt_closure
+.Fo zt_pack_closure1
+.Fa "zt_location location"
+.Fa "zt_closure_func1 func"
+.Fa "zt_value arg1"
+.Fc
+.Bd -literal
+#define ZT_CLOSURE1(func, arg1) \\
+  zt_pack_closure0( \\
+    ZT_CURRENT_LOCATION(), (func), (arg1))
+.Be
+.Sh DESCRIPTION
+.Fn zt_pack_closure1
+packs a function pointer and a single argument into
+.Nm zt_closure
+and sets additional information about the number and composition the
+arguments, so that the function can be called at a later time.
+.Pp
+Actual test code should use
+.Fn ZT_CLOSURE1
+which passes the first argument automatically.
+.Sh IMPLEMENTATION NOTES
+.Nm zt_pack_closure1
+is only provided as a static inline function.
+.Sh RETURN VALUES
+.Nm
+returns the configured
+.Nm zt_closure .
+.Sh EXAMPLES
+.Bd -literal -offset indent
+#include <zt.h>
+#include <stdlib.h>
+
+static void free_value(zt_value val) {
+    free(val.as.pointer);
+}
+
+#define FREE(ptr) ZT_CLOSURE1(free_value, zt_pack_pointer((ptr), #ptr))
+
+static void test_allocated_memory(zt_t t) {
+    void *m = malloc(100);
+    zt_defer(t, FREE(m));
+    /* do something with m */
+}
+.Ed
+.Sh SEE ALSO
+.Xr ZT_CURRENT_LOCATION 3 ,
+.Xr zt_closure 3 ,
+.Xr zt_closure_func1 3 ,
+.Xr zt_defer 3 ,
+.Xr zt_location 3
+.Sh HISTORY
+The function
+.Fn zt_pack_closure1
+and the macro
+.Fn ZT_CLOSURE1
+first appeared in libzt 0.4
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

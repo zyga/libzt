@@ -1,0 +1,91 @@
+.Dd January 14, 2020
+.Os libzt @VERSION@
+.Dt zt_defer 3 PRM
+.Sh NAME
+.Nm zt_defer,
+.Nd call a function after the current test terminates
+.Sh SYNOPSIS
+.In zt.h
+.Ft void
+.Fo zt_defer
+.Fa "zt_t t"
+.Fa "zt_closure closure"
+.Fc
+.Sh DESCRIPTION
+The function
+.Fn
+arranges for the function encapsulated by
+.Em closure
+to be called at after the current test function returns.
+This mechanism works even in the case of non-local exit
+used by
+.Fn zt_assert .
+It is designed to allow test authors to reclaim allocated memory, close
+files, restore the state of mocked state or other tasks that are required
+to ensure program consistency.
+.Pp
+In the spirit of robustness, the burden of providing memory for deferred
+function calls is shifted to the test author. Test authors must provide a
+.Em test resource
+of the kind
+.Em ZT_RESOURCE_DEFER_CLOSURES
+with enough capacity to remember all of the deferred calls in all the tests.
+This can be done by calling
+.Fn zt_visit_resource
+anywhere in a test suite function, before visiting the first test that relies
+on defer.
+.Pp
+If insufficient amount of defer resources are available, the defer function
+is called immediately, the current test is marked as failed and the test
+terminates through a non-local exit. Note that succesfully deferred calls
+are also executed regardless of the means of exiting from a test function.
+.Sh IMPLEMENTATION NOTES
+Defer is implemented using a stack of
+.Nm zt_closure
+structures. Before visiting a test function, the stack is emptied.
+At the end of the test subsequent closures are popped and executed.
+.Sh RETURN VALUES
+.Nm
+does not return any value.
+.Sh EXAMPLES
+The following example shows a minimal test program using resources and defer
+to ensure that allocated memory is not leaked.
+.Bd -literal -offset indent
+#include <stdlib.h>
+#include <zt.h>
+
+static void free_value(zt_value val) {
+    free(val.as.pointer);
+}
+
+#define FREE(ptr) ZT_CLOSURE1(free_value, zt_pack_pointer((ptr), #ptr))
+
+static void test_allocated_memory(zt_t t) {
+    void *m = malloc(100);
+    zt_assert(t, ZT_NOT_NULL(m));
+    zt_defer(t, FREE(m));
+    /* Do something with the allocated memory. */
+}
+
+static void test_suite(zt_visitor v) {
+    zt_closure closures[1];
+    zt_visit_resource(v, ZT_RESOURCE_DEFER_CLOSURES,
+        sizeof closures / sizeof *closures, closures);
+    ZT_VISIT_TEST_CASE(v, test_allocated_memory);
+}
+
+int main(int argc, char** argv, char** envp) {
+    return zt_main(argc, argv, envp, test_suite);
+}
+.Ed
+.Sh SEE ALSO
+.Xr ZT_CLOSURE0 3 ,
+.Xr ZT_CLOSURE1 3 ,
+.Xr zt_closure 3 ,
+.Xr zt_visit_resource 3
+.Sh HISTORY
+The function
+.Nm
+first appeared in libzt 0.4
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

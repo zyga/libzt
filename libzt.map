@@ -25,4 +25,6 @@ VERS_0_2 {
 VERS_0_3 {
 	global:
 		zt_cmp_ptr;
+		zt_visit_resource;
+		zt_defer;
 } VERS_0_2;

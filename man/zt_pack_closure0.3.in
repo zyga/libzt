@@ -1,0 +1,63 @@
+.Dd January 14, 2020
+.Os libzt @VERSION@
+.Dt zt_pack_closure0 3 PRM
+.Sh NAME
+.Nm zt_pack_closure0 ,
+.Nm ZT_CLOSURE0
+.Nd pack function closure without arguments
+.Sh SYNOPSIS
+.In zt.h
+.Ft zt_closure
+.Fo zt_pack_closure0
+.Fa "zt_location location"
+.Fa "zt_closure_func0 func"
+.Fc
+.Bd -literal
+#define ZT_CLOSURE0(func) \\
+  zt_pack_closure0( \\
+    ZT_CURRENT_LOCATION(), (func))
+.Be
+.Sh DESCRIPTION
+.Fn zt_pack_closure0
+packs a function pointer into
+.Nm zt_closure
+and sets additional information about the number and composition the
+arguments, so that the function can be called at a later time.
+.Pp
+Actual test code should use
+.Fn ZT_CLOSURE0
+which passes the first argument automatically.
+.Sh IMPLEMENTATION NOTES
+.Nm zt_pack_closure0
+is only provided as a static inline function.
+.Sh RETURN VALUES
+.Nm
+returns the configured
+.Nm zt_closure .
+.Sh EXAMPLES
+.Bd -literal -offset indent
+#include <zt.h>
+
+void mock_global_stuff(void);
+void restore_global_stuff(void);
+
+static void test_root_user(zt_t t) {
+    mock_global_stuff();
+    zt_defer(t, ZT_CLOSURE0(restore_global_state));
+    /* test something with the mocking in place. */
+}
+.Ed
+.Sh SEE ALSO
+.Xr ZT_CURRENT_LOCATION 3 ,
+.Xr zt_closure 3 ,
+.Xr zt_closure_func0 3 ,
+.Xr zt_defer 3 ,
+.Xr zt_location 3
+.Sh HISTORY
+The function
+.Fn zt_pack_closure0
+and the macro
+.Fn ZT_CLOSURE0
+first appeared in libzt 0.4
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

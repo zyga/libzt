@@ -1,3 +1,20 @@
+Changes in 0.4 (unreleased):
+
+ * Test suites can now offer resources, through the zt_visit_resource()
+   function. Resources are remembered by the library and used in specific
+   circumstances. This mode decouples allocation of resources such as memory
+   or threads from the internals of the library and puts ultimate control in
+   the hand of the test author.
+
+ * Test functions can now defer cleanup operations through the zt_defer()
+   function and the family of supporting types, functions and macros.
+   Deferred functions execute when the test function returns, both
+   successfully and abnormally, through non-local exit.
+
+   To use deferred cleanup, the test suite that either directly or indirectly
+   contains a test function must offer the resource ZT_RESOURCE_DEFER_CLOSURES,
+   which represent closures that can be prepared and called at a later moment.
+
 Changes in 0.3.1:
 
  * The build system has been updated to ZMK 0.3.6. This should fix

@@ -1,0 +1,57 @@
+.Dd January 14, 2020
+.Os libzt @VERSION@
+.Dt zt_closure 3 PRM
+.Sh NAME
+.Nm zt_closure
+.Nd structure representing a function closure
+.Sh SYNOPSIS
+.In zt.h
+.Bd -literal
+typedef struct zt_closure {
+    union {
+        zt_closure_func0 args0;
+        zt_closure_func1 args1;
+    } func;
+    zt_location location;
+    int nargs;
+    zt_value args[1];
+} zt_closure;
+.Be
+.Sh DESCRIPTION
+The structure
+.Nm
+contains a function pointer and at most one argument represented as a
+.Nm zt_value .
+.Pp
+Closures are used by
+.Fn zt_defer
+to facilitate reliable management of memory and other resources inside test
+code. It can be also used to setup and restore mocking of application
+behaviors. Function arguments are represented by
+.Nm zt_value
+for convenience, to avoid casting integers and pointers. Test code is
+expected to provide wrapper functions that take a
+.Nm zt_value
+argument and pass the call to another function such as
+.Fn free
+or
+.Fn close .
+.Sh IMPLEMENTATION NOTES
+The
+.Nm location
+field describes location in the source code where the closure was packed. It
+is used in some diagnostic error messages.
+.Sh SEE ALSO
+.Xr zt_closure_func0 3 ,
+.Xr zt_closure_func1 3 ,
+.Xr zt_defer 3 ,
+.Xr zt_location 3 ,
+.Xr zt_pack_closure0 3 ,
+.Xr zt_pack_closure1 3 ,
+.Xr zt_value 3
+.Sh HISTORY
+The structure
+.Nm
+first appeared in libzt 0.4
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl
