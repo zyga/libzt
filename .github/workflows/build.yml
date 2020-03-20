@@ -1,0 +1,26 @@
+name: Build and Test
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Configure
+      run: ./configure
+    - name: Build with Make
+      run: make
+    - name: Run various checks
+      run: make check
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Build with MSVC
+        run: nmake /f .makefiles/Makefile.Windows.mk all
+      - name: Run the test suite
+        run: nmake /f .makefiles/Makefile.Windows.mk check
