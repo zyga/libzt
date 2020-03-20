@@ -29,9 +29,33 @@
 
 #ifndef _WIN32
 #define ZT_UNUSED __attribute__((unused))
+#define ZT_FORMAT_PRINTF(a, b) __attribute__((format(printf, a, b)))
 #else
 #define ZT_UNUSED
+#define ZT_FORMAT_PRINTF(a, b)
 #endif
+
+static void zt_logv(FILE* stream, zt_location loc, const char* fmt, va_list ap);
+static void zt_logf(FILE* stream, zt_location loc, const char* fmt, ...) ZT_FORMAT_PRINTF(3, 4);
+
+static void zt_logv(FILE* stream, zt_location loc, const char* fmt, va_list ap)
+{
+    if (stream != NULL) {
+        if (loc.fname != NULL && loc.lineno != 0) {
+            fprintf(stream, "%s:%d: ", loc.fname, loc.lineno);
+        }
+        vfprintf(stream, fmt, ap);
+        fprintf(stream, "\n");
+    }
+}
+
+static void zt_logf(FILE* stream, zt_location loc, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    zt_logv(stream, loc, fmt, ap);
+    va_end(ap);
+}
 
 static inline zt_value_kind zt_value_kind_of(zt_value value)
 {
@@ -230,12 +254,6 @@ typedef struct zt_test {
     zt_location location; /** location of the last verified claim. */
     zt_outcome outcome;
 } zt_test;
-
-static bool zt_test_failure(zt_test* test, const char* fmt, ...)
-#ifndef _WIN32
-    __attribute__((format(printf, 2, 3)))
-#endif
-    ;
 
 typedef struct zt_visitor_vtab {
     void (*visit_case)(void*, zt_test_case_func, const char* name);
@@ -463,49 +481,40 @@ static bool zt_verify_claim(zt_test* test, const zt_claim* claim)
         return verifier.func.args0(test);
     case 1:
         if (zt_value_kind_of(claim->args[0]) != verifier.arg_infos[0].kind) {
-            return zt_test_failure(test, "%s", verifier.arg_infos[0].kind_mismatch_msg);
+            zt_logf(test->stream, test->location, "%s", verifier.arg_infos[0].kind_mismatch_msg);
+            return false;
         }
         return verifier.func.args1(test, claim->args[0]);
     case 2:
         if (zt_value_kind_of(claim->args[0]) != verifier.arg_infos[0].kind) {
-            return zt_test_failure(test, "%s", verifier.arg_infos[0].kind_mismatch_msg);
+            zt_logf(test->stream, test->location, "%s", verifier.arg_infos[0].kind_mismatch_msg);
+            return false;
         }
         if (zt_value_kind_of(claim->args[1]) != verifier.arg_infos[1].kind) {
-            return zt_test_failure(test, "%s", verifier.arg_infos[1].kind_mismatch_msg);
+            zt_logf(test->stream, test->location, "%s", verifier.arg_infos[1].kind_mismatch_msg);
+            return false;
         }
         return verifier.func.args2(test, claim->args[0], claim->args[1]);
     case 3:
         if (zt_value_kind_of(claim->args[0]) != verifier.arg_infos[0].kind) {
-            return zt_test_failure(test, "%s", verifier.arg_infos[0].kind_mismatch_msg);
+            zt_logf(test->stream, test->location, "%s", verifier.arg_infos[0].kind_mismatch_msg);
+            return false;
         }
         if (zt_value_kind_of(claim->args[1]) != verifier.arg_infos[1].kind) {
-            return zt_test_failure(test, "%s", verifier.arg_infos[1].kind_mismatch_msg);
+            zt_logf(test->stream, test->location, "%s", verifier.arg_infos[1].kind_mismatch_msg);
+            return false;
         }
         if (zt_value_kind_of(claim->args[2]) != verifier.arg_infos[2].kind) {
-            return zt_test_failure(test, "%s", verifier.arg_infos[2].kind_mismatch_msg);
+            zt_logf(test->stream, test->location, "%s", verifier.arg_infos[2].kind_mismatch_msg);
+            return false;
         }
         return verifier.func.args3(test, claim->args[0], claim->args[1],
             claim->args[2]);
     default:
-        return zt_test_failure(test, "unsupported number of arguments: %" PRIuMAX,
+        zt_logf(test->stream, test->location, "unsupported number of arguments: %" PRIuMAX,
             (uintmax_t)verifier.nargs);
+        return false;
     }
-}
-
-static bool zt_test_failure(zt_test* test, const char* fmt, ...)
-{
-    va_list ap;
-    FILE* stream = test->stream;
-
-    va_start(ap, fmt);
-    if (stream != NULL) {
-        const zt_location loc = test->location;
-        fprintf(stream, "%s:%d: ", loc.fname, loc.lineno);
-        vfprintf(stream, fmt, ap);
-        fprintf(stream, "\n");
-    }
-    va_end(ap);
-    return false;
 }
 
 /* check and assert */
@@ -580,7 +589,8 @@ static bool zt_verify_true(zt_test* test, zt_value value)
     if (value.as.boolean) {
         return true;
     }
-    return zt_test_failure(test, "assertion failed because %s is false", zt_source_of(value));
+    zt_logf(test->stream, test->location, "assertion failed because %s is false", zt_source_of(value));
+    return false;
 }
 
 static zt_verifier zt_verifier_for_true(void)
@@ -609,7 +619,8 @@ static bool zt_verify_false(zt_test* test, zt_value value)
     if (!value.as.boolean) {
         return true;
     }
-    return zt_test_failure(test, "assertion failed because %s is true", zt_source_of(value));
+    zt_logf(test->stream, test->location, "assertion failed because %s is true", zt_source_of(value));
+    return false;
 }
 
 static zt_verifier zt_verifier_for_false(void)
@@ -644,8 +655,9 @@ static bool zt_verify_boolean_relation(zt_test* test, zt_value left, zt_value re
     zt_binary_relation bin_rel;
 
     if (zt_relation_inconsistent(rel)) {
-        return zt_test_failure(test, "%s %s %s uses inconsistent relation %s",
+        zt_logf(test->stream, test->location, "%s %s %s uses inconsistent relation %s",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right), rel.as.string);
+        return false;
     }
     bin_rel = zt_find_binary_relation(rel.as.string);
     switch (bin_rel) {
@@ -660,15 +672,17 @@ static bool zt_verify_boolean_relation(zt_test* test, zt_value left, zt_value re
         }
         break;
     default:
-        return zt_test_failure(test, "assertion %s %s %s uses unsupported relation",
+        zt_logf(test->stream, test->location, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), rel.as.string, zt_source_of(right));
+        return false;
     }
-    return zt_test_failure(test, "assertion %s %s %s failed because %s %s %s",
+    zt_logf(test->stream, test->location, "assertion %s %s %s failed because %s %s %s",
         zt_source_of(left), zt_binary_relation_as_text(bin_rel),
         zt_source_of(right),
         zt_boolean_as_text(left.as.boolean),
         zt_binary_relation_as_text(zt_invert_binary_relation(bin_rel)),
         zt_boolean_as_text(right.as.boolean));
+    return false;
 }
 
 static zt_verifier zt_verifier_for_boolean_relation(void)
@@ -709,8 +723,9 @@ static bool zt_verify_rune_relation(zt_test* test, zt_value left, zt_value rel,
     zt_binary_relation bin_rel;
 
     if (zt_relation_inconsistent(rel)) {
-        return zt_test_failure(test, "assertion %s %s %s uses inconsistent relation %s",
+        zt_logf(test->stream, test->location, "assertion %s %s %s uses inconsistent relation %s",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right), rel.as.string);
+        return false;
     }
     bin_rel = zt_find_binary_relation(rel.as.string);
     switch (bin_rel) {
@@ -745,8 +760,9 @@ static bool zt_verify_rune_relation(zt_test* test, zt_value left, zt_value rel,
         }
         break;
     case ZT_REL_INVALID:
-        return zt_test_failure(test, "assertion %s %s %s uses unsupported relation",
+        zt_logf(test->stream, test->location, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right));
+        return false;
     }
     if (test->stream) {
         const zt_location loc = test->location;
@@ -806,8 +822,9 @@ static bool zt_verify_integer_relation(zt_test* test, zt_value left, zt_value re
     zt_binary_relation bin_rel;
 
     if (zt_relation_inconsistent(rel)) {
-        return zt_test_failure(test, "assertion %s %s %s uses inconsistent relation %s",
+        zt_logf(test->stream, test->location, "assertion %s %s %s uses inconsistent relation %s",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right), rel.as.string);
+        return false;
     }
     bin_rel = zt_find_binary_relation(rel.as.string);
     switch (bin_rel) {
@@ -842,13 +859,15 @@ static bool zt_verify_integer_relation(zt_test* test, zt_value left, zt_value re
         }
         break;
     case ZT_REL_INVALID:
-        return zt_test_failure(test, "assertion %s %s %s uses unsupported relation",
+        zt_logf(test->stream, test->location, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right));
+        return false;
     }
-    return zt_test_failure(test, "assertion %s %s %s failed because %jd %s %jd",
+    zt_logf(test->stream, test->location, "assertion %s %s %s failed because %jd %s %jd",
         zt_source_of(left), zt_source_of(rel), zt_source_of(right),
         left.as.intmax, zt_binary_relation_as_text(zt_invert_binary_relation(bin_rel)),
         right.as.intmax);
+    return false;
 }
 
 /**
@@ -896,8 +915,9 @@ static bool zt_verify_unsigned_relation(zt_test* test, zt_value left, zt_value r
     zt_binary_relation bin_rel;
 
     if (zt_relation_inconsistent(rel)) {
-        return zt_test_failure(test, "assertion %s %s %s uses inconsistent relation %s",
+        zt_logf(test->stream, test->location, "assertion %s %s %s uses inconsistent relation %s",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right), rel.as.string);
+        return false;
     }
     bin_rel = zt_find_binary_relation(rel.as.string);
     switch (bin_rel) {
@@ -932,14 +952,16 @@ static bool zt_verify_unsigned_relation(zt_test* test, zt_value left, zt_value r
         }
         break;
     case ZT_REL_INVALID:
-        return zt_test_failure(test, "assertion %s %s %s uses unsupported relation",
+        zt_logf(test->stream, test->location, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), rel.as.string, zt_source_of(right));
+        return false;
     }
-    return zt_test_failure(test, "assertion %s %s %s failed because %ju %s %ju",
+    zt_logf(test->stream, test->location, "assertion %s %s %s failed because %ju %s %ju",
         zt_source_of(left), rel.as.string, zt_source_of(right),
         left.as.uintmax,
         zt_binary_relation_as_text(zt_invert_binary_relation(bin_rel)),
         right.as.uintmax);
+    return false;
 }
 
 /**
@@ -983,17 +1005,20 @@ static bool zt_verify_string_relation(zt_test* test, zt_value left, zt_value rel
     int cmp;
 
     if (zt_relation_inconsistent(rel)) {
-        return zt_test_failure(test, "assertion %s %s %s uses inconsistent relation %s",
+        zt_logf(test->stream, test->location, "assertion %s %s %s uses inconsistent relation %s",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right), rel.as.string);
+        return false;
     }
     bin_rel = zt_find_binary_relation(rel.as.string);
     if (left.as.string == NULL) {
-        return zt_test_failure(test, "assertion %s %s %s failed because left hand side is NULL", zt_source_of(left),
+        zt_logf(test->stream, test->location, "assertion %s %s %s failed because left hand side is NULL", zt_source_of(left),
             rel.as.string, zt_source_of(right));
+        return false;
     }
     if (right.as.string == NULL) {
-        return zt_test_failure(test, "assertion %s %s %s failed because right hand side is NULL", zt_source_of(left),
+        zt_logf(test->stream, test->location, "assertion %s %s %s failed because right hand side is NULL", zt_source_of(left),
             rel.as.string, zt_source_of(right));
+        return false;
     }
     cmp = strcmp(left.as.string, right.as.string);
     switch (bin_rel) {
@@ -1028,8 +1053,9 @@ static bool zt_verify_string_relation(zt_test* test, zt_value left, zt_value rel
         }
         break;
     case ZT_REL_INVALID:
-        return zt_test_failure(test, "assertion %s %s %s uses unsupported relation",
+        zt_logf(test->stream, test->location, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right));
+        return false;
     }
     if (test->stream) {
         const zt_location loc = test->location;
@@ -1082,8 +1108,9 @@ static bool zt_verify_null(zt_test* test, zt_value value)
     if (value.as.pointer == NULL) {
         return true;
     }
-    return zt_test_failure(test, "assertion %s == NULL failed because %p != NULL",
+    zt_logf(test->stream, test->location, "assertion %s == NULL failed because %p != NULL",
         zt_source_of(value), value.as.pointer);
+    return false;
 }
 
 static zt_verifier zt_verifier_for_null(void)
@@ -1112,7 +1139,8 @@ static bool zt_verify_not_null(zt_test* test, zt_value value)
     if (value.as.pointer != NULL) {
         return true;
     }
-    return zt_test_failure(test, "assertion %s != NULL failed", zt_source_of(value));
+    zt_logf(test->stream, test->location, "assertion %s != NULL failed", zt_source_of(value));
+    return false;
 }
 
 static zt_verifier zt_verifier_for_not_null(void)
@@ -1142,8 +1170,9 @@ static bool zt_verify_pointer_relation(zt_test* test, zt_value left, zt_value re
     zt_binary_relation bin_rel;
 
     if (zt_relation_inconsistent(rel)) {
-        return zt_test_failure(test, "assertion %s %s %s uses inconsistent relation %s",
+        zt_logf(test->stream, test->location, "assertion %s %s %s uses inconsistent relation %s",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right), rel.as.string);
+        return false;
     }
     bin_rel = zt_find_binary_relation(rel.as.string);
     switch (bin_rel) {
@@ -1158,14 +1187,16 @@ static bool zt_verify_pointer_relation(zt_test* test, zt_value left, zt_value re
         }
         break;
     default:
-        return zt_test_failure(test, "assertion %s %s %s uses unsupported relation",
+        zt_logf(test->stream, test->location, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right));
+        return false;
     }
-    return zt_test_failure(test, "assertion %s %s %s failed because %p %s %p",
+    zt_logf(test->stream, test->location, "assertion %s %s %s failed because %p %s %p",
         zt_source_of(left), rel.as.string, zt_source_of(right),
         left.as.pointer,
         zt_binary_relation_as_text(zt_invert_binary_relation(bin_rel)),
         right.as.pointer);
+    return false;
 }
 
 static zt_verifier zt_verifier_for_pointer_relation(void)
