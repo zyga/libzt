@@ -110,9 +110,13 @@ static void selftest_quote_str(FILE* stream, const char* str)
     /* self-test quote function uses single-quotes. Meanwhile the production
      * quote function uses double quotes. This allows one to quote the other
      * without unnecessary escaping. */
-    int c;
     fputs("\'", stream);
-    while ((c = *(str++))) {
+    for (;;) {
+        int c = *str;
+        if (c == '\0') {
+            break;
+        }
+        str++;
         switch (c) {
         case '\'':
             fputs("\\'", stream);

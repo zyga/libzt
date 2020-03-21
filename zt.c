@@ -228,9 +228,13 @@ static void zt_quote_rune(FILE* stream, int c)
 
 static void zt_quote_string(FILE* stream, const char* str)
 {
-    int c;
     fputs("\"", stream);
-    while ((c = *(str++))) {
+    for (;;) {
+        int c = *str;
+        str++;
+        if (c == '\0') {
+            break;
+        }
         zt_quote_rune_inner(stream, c, '"');
     }
     fputs("\"", stream);
