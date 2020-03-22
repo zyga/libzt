@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if !defined(GCC) || !defined(CLANG)
+#if !defined(__GNUC__) && !defined(__clang__)
 #define ZT_UNUSED
 #define ZT_FORMAT_PRINTF(a, b)
 #else
