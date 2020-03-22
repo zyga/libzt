@@ -17,7 +17,7 @@
 
 # Configure script for integration with distribution packaging preferences.
 {
-    while [ "$#" -gt 1 ]; do
+    while [ "$#" -ge 1 ]; do
         case "$1" in
             --help)
                 echo "This configure script is only meant for Linux distribution packaging" >&2
