@@ -26,6 +26,10 @@ Changes in 0.3:
  * The function zt_main() now displays both the test case name and the outcome
    of each test when invoked with "-v" command-line argument.
 
+ * Libzt can now build for DOS as either 16bit or extended mode 32bit.
+   Note that libzt-test.exe requires the DOS extender as it is too large to fit
+   into 64K code segment.
+
 Changes in 0.2:
 
  * Argument type to all unit test functions was typedef'd
