@@ -42,14 +42,26 @@
             --sharedstatedir=*) echo "sharedstatedir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
             --sysconfdir=*)     echo "sysconfdir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
             --localstatedir=*)  echo "localstatedir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            *) echo "configure: unknown option $1" >&2 && exit 1 ;;
+            CC=*)               CC="$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            CXX=*)              CXX="$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            CFLAGS=*)           CFLAGS="$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            CXXFLAGS=*)         CXXFLAGS="$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            CPPFLAGS=*)         CPPFLAGS="$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            LDFLAGS=*)          LDFLAGS="$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            *)
+                echo "configure: unknown option $1" >&2
+                exit 1
+                ;;
         esac
     done
     echo "srcdir=$(dirname "$0")"
     echo "VPATH=\$(srcdir)"
 
+    test -n "$CC" && echo "CC=$CC"
+    test -n "$CXX" && echo "CC=$CXX"
     test -n "$CFLAGS" && echo "CFLAGS=$CFLAGS"
     test -n "$CXXFLAGS" && echo "CXXFLAGS=$CXXFLAGS"
+    test -n "$CPPFLAGS" && echo "CPPFLAGS=$CPPFLAGS"
     test -n "$LDFLAGS" && echo "LDFLAGS=$LDFLAGS"
 } > GNUmakefile.configure.mk
 
