@@ -10,7 +10,7 @@ libzt is a simple and robust unit test library for C.
  - Simple and small, making it quick to learn and use.
  - Doesn't use dynamic memory allocation, reducing error handling.
  - Equipped with useful helpers for writing test cases.
- - Portable and supported on Linux, MacOS and Windows.
+ - Portable and supported on Linux, MacOS, Windows and DOS.
  - Documented and fully coverage and integration tested.
 
 ## Example
