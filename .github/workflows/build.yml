@@ -12,7 +12,7 @@ jobs:
     - name: Configure
       run: ./configure
     - name: Build with Make
-      run: make
+      run: make -j2
     - name: Run various checks
       run: make check
   macos:
@@ -23,7 +23,7 @@ jobs:
     - name: Configure
       run: ./configure
     - name: Build with Make
-      run: make
+      run: make -j2
     - name: Run various checks
       run: make check
   linux-arm:
@@ -34,7 +34,7 @@ jobs:
     - name: Configure
       run: ./configure
     - name: Build with Make
-      run: make
+      run: make -j4
     - name: Run various checks
       run: make check
   windows:
