@@ -27,7 +27,7 @@ jobs:
     - name: Run various checks
       run: make check
   linux-arm:
-    runs-on: [self-hosted, linux, ARM]
+    runs-on: [self-hosted, linux]
     needs: linux
     steps:
     - uses: actions/checkout@v2
