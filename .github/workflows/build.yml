@@ -26,6 +26,17 @@ jobs:
       run: make
     - name: Run various checks
       run: make check
+  linux-arm:
+    runs-on: [self-hosted, linux, ARM]
+    needs: linux
+    steps:
+    - uses: actions/checkout@v2
+    - name: Configure
+      run: ./configure
+    - name: Build with Make
+      run: make
+    - name: Run various checks
+      run: make check
   windows:
     runs-on: windows-latest
     needs: linux
