@@ -26,8 +26,11 @@ jobs:
       run: make -j2
     - name: Run various checks
       run: make check
-  linux-arm:
-    runs-on: [self-hosted, linux]
+  linux-native:
+    strategy:
+      matrix:
+        runner: [pi3-1-lxd-bionic, pi3-1-lxd-xenial, pi4-1-lxd-bionic, pi4-1-lxd-xenial]
+    runs-on: [self-hosted, ${{ matrix.runner }}]
     needs: linux
     steps:
     - uses: actions/checkout@v2
