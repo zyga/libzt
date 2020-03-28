@@ -37,7 +37,7 @@ libzt.so.1: LDFLAGS += -shared -fvisibility=hidden
 libzt.so.1: LDFLAGS += -Wl,-soname=libzt.so.1 -Wl,--version-script=$(srcdir)/libzt.map
 libzt.so.1: zt.o
 libzt.so.1: zt.o $(srcdir)/libzt.map
-	$(strip $(LINK.o) $(filter %.o,$^) $(LIBS) -o $@)
+	$(strip $(LINK.o) $(filter %.o,$^) $(LDLIBS) -o $@)
 libzt.so: | libzt.so.1
 	ln -s $| $@
 $(DESTDIR)$(libdir)/libzt.so.1: libzt.so.1 | $(DESTDIR)$(libdir)
