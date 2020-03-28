@@ -17,6 +17,11 @@
 
 # Configure script for integration with distribution packaging preferences.
 {
+    # Given key=value or key="value value", print the value
+    rhs() {
+        echo "$*" | cut -d '=' -f 2- | sed -e 's/^"//' -e 's/"$//'
+    }
+
     while [ "$#" -ge 1 ]; do
         case "$1" in
             --help)
@@ -29,25 +34,25 @@
             --disable-silent-rules)         shift ;;
             --host=*)                       shift ;;
             --program-prefix=)              shift ;;
-            --bindir=*)         echo "bindir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            --datadir=*)        echo "datadir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            --exec-prefix=*)    echo "exec_prefix=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            --includedir=*)     echo "includedir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            --infodir=*)        echo "infodir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            --libdir=*)         echo "libdir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            --libexecdir=*)     echo "libexecdir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            --mandir=*)         echo "mandir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            --prefix=*)         echo "prefix=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            --sbindir=*)        echo "sbindir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            --sharedstatedir=*) echo "sharedstatedir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            --sysconfdir=*)     echo "sysconfdir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            --localstatedir=*)  echo "localstatedir=$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            CC=*)               CC="$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            CXX=*)              CXX="$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            CFLAGS=*)           CFLAGS="$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            CXXFLAGS=*)         CXXFLAGS="$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            CPPFLAGS=*)         CPPFLAGS="$(echo "$1" | cut -d = -f 2-)" && shift ;;
-            LDFLAGS=*)          LDFLAGS="$(echo "$1" | cut -d = -f 2-)" && shift ;;
+            --bindir=*)         echo "bindir=$(rhs "$1")" && shift ;;
+            --datadir=*)        echo "datadir=$(rhs "$1")" && shift ;;
+            --exec-prefix=*)    echo "exec_prefix=$(rhs "$1")" && shift ;;
+            --includedir=*)     echo "includedir=$(rhs "$1")" && shift ;;
+            --infodir=*)        echo "infodir=$(rhs "$1")" && shift ;;
+            --libdir=*)         echo "libdir=$(rhs "$1")" && shift ;;
+            --libexecdir=*)     echo "libexecdir=$(rhs "$1")" && shift ;;
+            --mandir=*)         echo "mandir=$(rhs "$1")" && shift ;;
+            --prefix=*)         echo "prefix=$(rhs "$1")" && shift ;;
+            --sbindir=*)        echo "sbindir=$(rhs "$1")" && shift ;;
+            --sharedstatedir=*) echo "sharedstatedir=$(rhs "$1")" && shift ;;
+            --sysconfdir=*)     echo "sysconfdir=$(rhs "$1")" && shift ;;
+            --localstatedir=*)  echo "localstatedir=$(rhs "$1")" && shift ;;
+            CC=*)               CC="$(rhs "$1")" && shift ;;
+            CXX=*)              CXX="$(rhs "$1")" && shift ;;
+            CFLAGS=*)           CFLAGS="$(rhs "$1")" && shift ;;
+            CXXFLAGS=*)         CXXFLAGS="$(rhs "$1")" && shift ;;
+            CPPFLAGS=*)         CPPFLAGS="$(rhs "$1")" && shift ;;
+            LDFLAGS=*)          LDFLAGS="$(rhs "$1")" && shift ;;
             *)
                 echo "configure: unknown option $1" >&2
                 exit 1
