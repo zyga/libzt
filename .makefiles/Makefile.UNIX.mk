@@ -21,7 +21,7 @@ endif
 
 # Compiler defaults unless changed by GNUmakefile.configure.mk
 CPPFLAGS ?=
-CFLAGS ?= -Wall -Wextra -Wconversion -Wpedantic -Wchar-subscripts -Werror -O2
+CFLAGS ?=
 # On older compilers assert() in zt-test.c generates large strings but it's
 # not something we care about strongly.
 CFLAGS += -Wno-overlength-strings
