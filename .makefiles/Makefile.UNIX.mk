@@ -28,6 +28,7 @@ CFLAGS += -Wno-overlength-strings
 ARFLAGS = -cr
 TARGET_ARCH ?=
 LDLIBS ?=
+LDFLAGS ?=
 
 # Installation location
 DESTDIR ?=
