@@ -21,6 +21,8 @@ include $(srcdir)/.makefiles/Makefile.UNIX.mk
 # TODO: add code coverage support
 libzt-test: LDFLAGS += -fPIE
 
+# Watcom doesn't build dynamic libraries.
+ifneq ($(_cc_kind),watcom)
 # Build and install the dynamic library.
 all:: libzt.so.1
 clean::
@@ -34,7 +36,10 @@ uninstall::
 # used in shared libraries.
 %.o: CFLAGS += -fPIC
 libzt.so.1: LDFLAGS += -shared -fvisibility=hidden
-libzt.so.1: LDFLAGS += -Wl,-soname=libzt.so.1 -Wl,--version-script=$(srcdir)/libzt.map
+libzt.so.1: LDFLAGS += -Wl,-soname=libzt.so.1
+ifneq ($(_cc_kind),tcc)
+libzt.so.1: LDFLAGS += -Wl,--version-script=$(srcdir)/libzt.map
+endif
 libzt.so.1: zt.o
 libzt.so.1: zt.o $(srcdir)/libzt.map
 	$(strip $(LINK.o) $(filter %.o,$^) $(LDLIBS) -o $@)
@@ -44,3 +49,5 @@ $(DESTDIR)$(libdir)/libzt.so.1: libzt.so.1 | $(DESTDIR)$(libdir)
 	install $^ $@
 $(DESTDIR)$(libdir)/libzt.so: | $(DESTDIR)$(libdir)/libzt.so.1
 	ln -s $(notdir $|) $@
+
+endif # !watcom
