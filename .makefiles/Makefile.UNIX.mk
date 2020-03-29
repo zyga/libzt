@@ -14,6 +14,19 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
 
+# Deduce the kind of the selected compiler. Some build rules or compiler
+# options depend on the compiler used. As an alternative we could look at
+# preprocessor macros but this way seems sufficient for now.
+_cc := $(shell sh -c "command -v $(CC)")
+ifeq ($(_cc),/usr/bin/cc)
+_cc := $(realpath $(_cc))
+endif
+is_gcc=$(if $(findstring gcc,$(_cc)),yes)
+is_clang=$(if $(findstring clang,$(_cc)),yes)
+is_watcom=$(if $(findstring watcom,$(_cc)),yes)
+is_tcc=$(if $(findstring tcc,$(_cc)),yes)
+_cc_kind=$(or $(if $(is_gcc),gcc),$(if $(if_clang),clang),$(if $(is_watcom),watcom),$(if $(is_tcc),tcc))
+
 # Craft a better version if we have Git.
 ifneq ($(shell command -v git 2>/dev/null),)
 VERSION := $(or $(shell GIT_DIR=$(srcdir)/.git git describe --abbrev=10 --tags 2>/dev/null),$(VERSION))
@@ -22,13 +35,35 @@ endif
 # Compiler defaults unless changed by GNUmakefile.configure.mk
 CPPFLAGS ?=
 CFLAGS ?=
-# On older compilers assert() in zt-test.c generates large strings but it's
-# not something we care about strongly.
-CFLAGS += -Wno-overlength-strings
+CFLAGS ?=
 ARFLAGS = -cr
 TARGET_ARCH ?=
 LDLIBS ?=
 LDFLAGS ?=
+
+# The custom configuration script sets the variable CONFIGURED.
+# In its absence provide defaults appropriate for each compiler.
+CONFIGURED ?=
+ifeq ($(CONFIGURED),)
+$(info Build tree is not configured, using curated compiler options.)
+$(info Use ./configure to disable this mechanism)
+ifneq ($(or $(is_gcc),$(is_clang)),)
+CFLAGS += -Wall -Wextra -Wpedantic -Wconversion -Wchar-subscripts
+endif
+ifneq ($(is_watcom)),)
+CFLAGS += -Wall -Wextra
+endif
+CFLAGS += -O2
+# -Werror is enabled when building without a configuration file created
+# by the configure script. This is explicitly meant to find bugs, break the
+# build and be noticed.
+CFLAGS += -Werror
+endif
+
+ifeq ($(_cc_kind),gcc)
+# Older gcc complains about the assert() in zt-test.c
+zt-test.o: CFLAGS += -Wno-overlength-strings
+endif
 
 # Installation location
 DESTDIR ?=

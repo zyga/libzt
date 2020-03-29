@@ -30,6 +30,10 @@ Changes in 0.3:
    Note that libzt-test.exe requires the DOS extender as it is too large to fit
    into 64K code segment.
 
+ * The configuration system is more robust and can now detect the use of Gcc,
+   Clang and the OpenWatcom compilers. Using OpenWatcom from the open-watcom
+   snap allows cross-compiling libzt for DOS and other older targets.
+
 Changes in 0.2:
 
  * Argument type to all unit test functions was typedef'd
