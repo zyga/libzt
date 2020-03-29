@@ -363,6 +363,7 @@ static bool selftest_passing_verify0(zt_t t)
 static bool selftest_passing_verify1_called;
 static bool selftest_passing_verify1(zt_t t, ZT_UNUSED zt_value arg1)
 {
+    (void)arg1;
     assert(t != NULL);
     selftest_passing_verify1_called = true;
     return true;
@@ -371,6 +372,8 @@ static bool selftest_passing_verify1(zt_t t, ZT_UNUSED zt_value arg1)
 static bool selftest_passing_verify2_called;
 static bool selftest_passing_verify2(zt_t t, ZT_UNUSED zt_value arg1, ZT_UNUSED zt_value arg2)
 {
+    (void)arg1;
+    (void)arg2;
     assert(t != NULL);
     selftest_passing_verify2_called = true;
     return true;
@@ -379,6 +382,9 @@ static bool selftest_passing_verify2(zt_t t, ZT_UNUSED zt_value arg1, ZT_UNUSED 
 static bool selftest_passing_verify3_called;
 static bool selftest_passing_verify3(zt_t t, ZT_UNUSED zt_value arg1, ZT_UNUSED zt_value arg2, ZT_UNUSED zt_value arg3)
 {
+    (void)arg1;
+    (void)arg2;
+    (void)arg3;
     assert(t != NULL);
     selftest_passing_verify3_called = true;
     return true;
@@ -2118,6 +2124,7 @@ static void selftest_failing_assert(zt_t t)
 
 static void selftest_empty_suite(ZT_UNUSED zt_visitor v)
 {
+    (void)v;
 }
 
 static void selftest_passing_suite(zt_visitor v)
@@ -2194,7 +2201,7 @@ static void test_main_verbosely_running_failing_tests(void)
         "%s:%d: assertion failed because 0 is false\n"
         "%s:%d: assertion 1 != 1 failed because 1 == 1\n"
         "%s:%d: assertion failed because 0 is false\n",
-        __FILE__, __LINE__ - 92, __FILE__, __LINE__ - 91, __FILE__, __LINE__ - 81);
+        __FILE__, __LINE__ - 93, __FILE__, __LINE__ - 92, __FILE__, __LINE__ - 82);
     fclose(zt_mock_stdout);
     fclose(zt_mock_stderr);
     zt_mock_stdout = NULL;
@@ -2244,6 +2251,9 @@ static void test_stdout_stderr(void)
 
 int main(ZT_UNUSED int argc, ZT_UNUSED char** argv, ZT_UNUSED char** envp)
 {
+    (void)argc;
+    (void)argv;
+    (void)envp;
     test_MAJOR_MINOR_VERSION();
 
     test_pack_boolean();
