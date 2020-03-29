@@ -345,6 +345,7 @@ static void zt_test_lister__visit_suite(void* id, zt_test_suite_func func,
     const char* name)
 {
     zt_test_lister* lister = (zt_test_lister*)id;
+    (void)func;
     fprintf(lister->stream, "%*c %s\n", lister->nesting * 3, '-', name);
     lister->nesting++;
     func(zt_visitor_from_test_lister(lister));
@@ -355,6 +356,7 @@ static void zt_test_lister__visit_case(void* id, ZT_UNUSED zt_test_case_func fun
     const char* name)
 {
     zt_test_lister* lister = (zt_test_lister*)id;
+    (void)func;
     fprintf(lister->stream, "%*c %s\n", lister->nesting * 3, '-', name);
 }
 
@@ -573,6 +575,7 @@ static FILE* zt_stderr(void)
 int zt_main(int argc, char** argv, ZT_UNUSED char** envp,
     zt_test_suite_func tsuite)
 {
+    (void)envp;
     if (argc == 2 && strcmp(argv[1], "-l") == 0) {
         zt_list_tests_from(zt_stdout(), tsuite);
         return EXIT_SUCCESS;
