@@ -14,17 +14,5 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
 
-NAME = libzt
-VERSION = 0.2
-
-# Meta-targets that don't have specific specific commands
-.PHONY: $(sort all clean coverage fmt static-check check install uninstall dist distclean)
-# Default goal is to build everything, regardless of declaration order
-.DEFAULT_GOAL = all
-
-# Include optional generated makefile from the configuration system.
-srcdir ?= .
--include GNUmakefile.configure.mk
-
-# Include platform specific makefile.
-include $(srcdir)/.makefiles/Makefile.$(shell uname -s | tr '/' '-').mk
+# This is untested. I was unable to find a non-404 installer. 
+include $(srcdir)/.makefiles/Makefile.Linux.mk
