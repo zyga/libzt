@@ -58,6 +58,17 @@ CFLAGS += -O2
 # by the configure script. This is explicitly meant to find bugs, break the
 # build and be noticed.
 CFLAGS += -Werror
+else # CONFIGURED
+# If we are configured then check for cross compilation by mismatch
+# of host and build triplets. When this happens set CC and CXX.
+ifneq ($(BUILD_ARCH_TRIPLET),$(HOST_ARCH_TRIPLET))
+ifeq ($(CC),cc)
+CC = $(HOST_ARCH_TRIPLET)-gcc
+endif
+ifeq ($(CC),c++)
+CXX = $(HOST_ARCH_TRIPLET)-g++
+endif
+endif
 endif
 
 ifeq ($(_cc_kind),gcc)

@@ -28,11 +28,11 @@
                 echo "This configure script is only meant for Linux distribution packaging" >&2
                 exit 1
                 ;;
-            --build=*)                      shift ;;
+            --build=*)          echo "BUILD_ARCH_TRIPLET=$(rhs "$1")" && shift ;;
             --disable-dependency-tracking)  shift ;;
             --disable-maintainer-mode)      shift ;;
             --disable-silent-rules)         shift ;;
-            --host=*)                       shift ;;
+            --host=*)           echo "HOST_ARCH_TRIPLET=$(rhs "$1")" && shift ;;
             --program-prefix=)              shift ;;
             --bindir=*)         echo "bindir=$(rhs "$1")" && shift ;;
             --datadir=*)        echo "datadir=$(rhs "$1")" && shift ;;
