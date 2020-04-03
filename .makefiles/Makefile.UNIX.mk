@@ -197,8 +197,14 @@ $(DESTDIR)$(libdir)/libzt.a: libzt.a | $(DESTDIR)$(libdir)
 all:: libzt-test
 clean::
 	rm -f libzt-test
+ifeq ($(BUILD_ARCH_TRIPLET),$(HOST_ARCH_TRIPLET))
 check:: libzt-test
 	./$<
+else
+check::
+	echo "Not running unit tests when cross compiling"
+endif
+
 install:: $(DESTDIR)$(bindir)/libzt-test
 uninstall::
 	rm -f $(DESTDIR)$(bindir)/libzt-test
