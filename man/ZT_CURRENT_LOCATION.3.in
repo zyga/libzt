@@ -1,5 +1,5 @@
 .Dd January 12, 2020
-.Os libzt 0.1
+.Os libzt @VERSION@
 .Dt ZT_CURRENT_LOCATION 3 PRM
 .Sh NAME
 .Nm ZT_CURRENT_LOCATION

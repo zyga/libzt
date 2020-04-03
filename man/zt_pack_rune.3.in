@@ -1,0 +1,42 @@
+.Dd January 12, 2020
+.Os libzt @VERSION@
+.Dt zt_pack_rune 3 PRM
+.Sh NAME
+.Nm zt_pack_rune
+.Nd pack a character into a variant
+.Sh SYNOPSIS
+.In zt.h
+.Ft zt_value
+.Fo zt_pack_rune
+.Fa "int value"
+.Fa "const char *source"
+.Fc
+.Sh DESCRIPTION
+.Nm
+packs a rune, as well as the string describing the expression evaluated to
+obtain it, into a variant-like
+.Ft zt_value .
+The source argument is retained by the value and is typically a constant string
+literal produced by the preprocessor.
+.Pp
+Runes are generalized characters. Unlike char, they are never negative and can
+be though of as Unicode code points.
+.Sh IMPLEMENTATION NOTES
+.Fn zt_pack_rune
+compensates for signed negative characters by masking them with 0xFF.
+.Sh RETURN VALUES
+The packed value.
+.Sh SEE ALSO
+.Xr zt_pack_nothing 3 ,
+.Xr zt_pack_integer 3 ,
+.Xr zt_pack_rune 3 ,
+.Xr zt_pack_integer 3 ,
+.Xr zt_pack_unsigned 3 ,
+.Xr zt_pack_string 3 ,
+.Xr zt_pack_pointer 3
+.Xr zt_value 3 ,
+.Sh HISTORY
+.Nm
+first appeared in libzt 0.1
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

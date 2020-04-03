@@ -1,40 +1,44 @@
-.Dd March 12, 2020
-.Os libzt 0.1
-.Dt ZT_CMP_PTR 3 PRM
+.Dd January 12, 2020
+.Os libzt @VERSION@
+.Dt ZT_CMP_UINT 3 PRM
 .Sh NAME
-.Nm ZT_CMP_PTR ,
-.Nm zt_cmp_int
-.Nd construct a claim of a relation between two pointers
+.Nm ZT_CMP_UINT ,
+.Nm zt_cmp_uint
+.Nd construct a claim of a relation between two unsigned integers
 .Sh SYNOPSIS
 .In zt.h
 .Bd -literal
-#define ZT_CMP_PTR(left, rel, right) \\
-  zt_cmp_ptr( \\
+#define ZT_CMP_UINT(left, rel, right) \\
+  zt_cmp_uint( \\
     ZT_CURRENT_LOCATION(), \\
-    zt_pack_pointer((left), (#left)), \\
+    zt_pack_unsigned((left), (#left)), \\
     zt_pack_string((#rel), (#rel)), \\
-    zt_pack_pointer((right), (#right)))
+    zt_pack_unsigned((right), (#right)))
 .Ed
 .Ft zt_claim
-.Fo zt_cmp_ptr
+.Fo zt_cmp_uint
 .Fa "zt_location location"
 .Fa "zt_value left"
 .Fa "zt_value rel"
 .Fa "zt_value right"
 .Fc
 .Sh DESCRIPTION
-.Fn zt_cmp_ptr
-constructs a claim of a relation between two integers. It should be used
-through the macro
-.Fn ZT_CMP_PTR
+.Fn zt_cmp_uint
+constructs a claim of a relation between two unsigned integers. It should be
+used through the macro
+.Fn ZT_CMP_UINT
 which passes source code location and packs arguments.
 .Pp
-The relation must be either
+The relation must be one of
 .Em == ,
+.Em != ,
+.Em < ,
+.Em <= ,
+.Em >
 or
-.Em !=
+.Em >= .
 .Sh IMPLEMENTATION NOTES
-.Fn ZT_CMP_PTR
+.Fn ZT_CMP_UINT
 evaluates
 .Em left
 and
@@ -48,7 +52,7 @@ or to
 .Fn zt_assert .
 .Sh SEE ALSO
 .Xr ZT_CMP_BOOL 3 ,
-.Xr ZT_CMP_CHAR 3 ,
+.Xr ZT_CMP_RUNE 3 ,
 .Xr ZT_CMP_CSTR 3 ,
 .Xr ZT_CMP_PTR 3 ,
 .Xr ZT_CMP_UINT 3 ,
@@ -59,9 +63,20 @@ or to
 .Xr zt_check 3 ,
 .Sh HISTORY
 The
-.Fn ZT_CMP_PTR
+.Fn ZT_CMP_UINT
 macro and the
-.Fn zt_cmp_ptr
-function first appeared in libzt 0.3
+.Fn zt_cmp_uint
+function first appeared in libzt 0.1
+.Pp
+Since libzt 0.3
+.Fn zt_cmp_uint
+internally promotes
+.Nm left
+and
+.Nm right
+arguments from
+.Nm ZT_UNSIGNED
+to
+.Nm ZT_UINTMAX .
 .Sh AUTHORS
 .An "Zygmunt Krynicki" Aq Mt me@zygoon.pl

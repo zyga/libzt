@@ -1,20 +1,20 @@
 .Dd January 12, 2020
-.Os libzt 0.1
-.Dt zt_pack_pointer 3 PRM
+.Os libzt @VERSION@
+.Dt zt_pack_boolean 3 PRM
 .Sh NAME
-.Nm zt_pack_pointer
-.Nd pack an opaque pointer into a variant
+.Nm zt_pack_boolean
+.Nd pack a boolean into a variant
 .Sh SYNOPSIS
 .In zt.h
 .Ft zt_value
-.Fo zt_pack_pointer
-.Fa "const void *value"
+.Fo zt_pack_boolean
+.Fa "bool value"
 .Fa "const char *source"
 .Fc
 .Sh DESCRIPTION
 .Nm
-packs an opaque pointer, as well as the string describing the expression
-evaluated to obtain it, into a variant-like
+packs a boolean, as well as the string describing the expression evaluated to
+obtain it, into a variant-like
 .Ft zt_value .
 The source argument is retained by the value and is typically a constant
 string literal produced by the preprocessor.
@@ -25,11 +25,11 @@ is only provided as a static inline function.
 The packed value.
 .Sh SEE ALSO
 .Xr zt_pack_nothing 3 ,
-.Xr zt_pack_pointer 3 ,
+.Xr zt_pack_boolean 3 ,
 .Xr zt_pack_rune 3 ,
-.Xr zt_pack_pointer 3 ,
-.Xr zt_pack_pointer 3 ,
-.Xr zt_pack_pointer 3 ,
+.Xr zt_pack_integer 3 ,
+.Xr zt_pack_unsigned 3 ,
+.Xr zt_pack_string 3 ,
 .Xr zt_pack_pointer 3
 .Xr zt_value 3 ,
 .Sh HISTORY
