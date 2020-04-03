@@ -41,9 +41,13 @@ TARGET_ARCH ?=
 LDLIBS ?=
 LDFLAGS ?=
 
+# Configuration system defaults, also changed by GNUMakefile.configure.mk
+CONFIGURED ?=
+HOST_ARCH_TRIPLET ?=
+BUILD_ARCH_TRIPLET ?=
+
 # The custom configuration script sets the variable CONFIGURED.
 # In its absence provide defaults appropriate for each compiler.
-CONFIGURED ?=
 ifeq ($(CONFIGURED),)
 $(info Build tree is not configured, using curated compiler options.)
 $(info Use ./configure to disable this mechanism)
@@ -62,10 +66,10 @@ else # CONFIGURED
 # If we are configured then check for cross compilation by mismatch
 # of host and build triplets. When this happens set CC and CXX.
 ifneq ($(BUILD_ARCH_TRIPLET),$(HOST_ARCH_TRIPLET))
-ifeq ($(CC),cc)
+ifeq ($(origin CC),default)
 CC = $(HOST_ARCH_TRIPLET)-gcc
 endif
-ifeq ($(CC),c++)
+ifeq ($(origin CXX),default)
 CXX = $(HOST_ARCH_TRIPLET)-g++
 endif
 endif
