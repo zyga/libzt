@@ -25,7 +25,7 @@ is_gcc=$(if $(findstring gcc,$(_cc)),yes)
 is_clang=$(if $(findstring clang,$(_cc)),yes)
 is_watcom=$(if $(findstring watcom,$(_cc)),yes)
 is_tcc=$(if $(findstring tcc,$(_cc)),yes)
-_cc_kind=$(or $(if $(is_gcc),gcc),$(if $(if_clang),clang),$(if $(is_watcom),watcom),$(if $(is_tcc),tcc))
+_cc_kind=$(or $(if $(is_gcc),gcc),$(if $(is_clang),clang),$(if $(is_watcom),watcom),$(if $(is_tcc),tcc))
 
 # Craft a better version if we have Git.
 ifneq ($(shell command -v git 2>/dev/null),)
