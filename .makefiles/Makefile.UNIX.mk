@@ -137,48 +137,68 @@ uninstall::
 $(DESTDIR)$(includedir)/zt.h: zt.h | $(DESTDIR)$(includedir)
 	install $^ $@
 
+# Build generated manual pages
+manpages = \
+	libzt-test.1 \
+	libzt.3 \
+	zt_check.3 \
+	zt_claim.3 \
+	ZT_CMP_BOOL.3 \
+	ZT_CMP_INT.3 \
+	ZT_CMP_PTR.3 \
+	ZT_CMP_RUNE.3 \
+	ZT_CMP_UINT.3 \
+	ZT_CURRENT_LOCATION.3 \
+	ZT_FALSE.3 \
+	zt_location.3 \
+	zt_location_at.3 \
+	zt_main.3 \
+	ZT_NOT_NULL.3 \
+	ZT_NULL.3 \
+	zt_pack_boolean.3 \
+	zt_pack_integer.3 \
+	zt_pack_nothing.3 \
+	zt_pack_pointer.3 \
+	zt_pack_rune.3 \
+	zt_pack_string.3 \
+	zt_pack_unsigned.3 \
+	zt_test.3 \
+	zt_test_case_func.3 \
+	zt_test_suite_func.3 \
+	ZT_TRUE.3 \
+	zt_value.3 \
+	zt_visit_test_case.3 \
+	zt_visitor.3
 
-# Install developer manual pages
-install:: $(sort \
-	$(addprefix $(DESTDIR)$(man1dir)/,$(notdir $(wildcard man/*.1))) \
-	$(addprefix $(DESTDIR)$(man2dir)/,$(notdir $(wildcard man/*.2))) \
-	$(addprefix $(DESTDIR)$(man3dir)/,$(notdir $(wildcard man/*.3))) \
-	$(addprefix $(DESTDIR)$(man4dir)/,$(notdir $(wildcard man/*.4))) \
-	$(addprefix $(DESTDIR)$(man5dir)/,$(notdir $(wildcard man/*.5))) \
-	$(addprefix $(DESTDIR)$(man6dir)/,$(notdir $(wildcard man/*.6))) \
-	$(addprefix $(DESTDIR)$(man7dir)/,$(notdir $(wildcard man/*.7))) \
-	$(addprefix $(DESTDIR)$(man8dir)/,$(notdir $(wildcard man/*.8))) \
-	$(addprefix $(DESTDIR)$(man9dir)/,$(notdir $(wildcard man/*.9))))
+man_sections = 1 2 3 4 5 6 7 8 9
+
+# Build all manual pages.
+all:: $(addprefix man/,$(manpages))
+# GNU man can be used to perform rudimentary validation of manual pages.
+ifneq ($(and $(shell command -v man 2>/dev/null),$(shell man --help 2>&1 | grep -F -- --warning)),)
+static-check:: $(addprefix man/,$(manpages))
+	LC_ALL=C MANROFFSEQ='' MANWIDTH=80 man --warnings -E UTF-8 -l -Tutf8 -Z $^ 2>&1 >/dev/null | diff -u - /dev/null
+endif
+# Install install the built manual pages.
+install:: $(sort $(foreach n,$(man_sections),$(addprefix $(DESTDIR)$(man$ndir)/,$(notdir $(filter %.$n,$(manpages))))))
+# Remove the installed manual pages.
 uninstall::
-	rm -f $(sort \
-		$(addprefix $(DESTDIR)$(man1dir)/,$(notdir $(wildcard man/*.1))) \
-		$(addprefix $(DESTDIR)$(man2dir)/,$(notdir $(wildcard man/*.2))) \
-		$(addprefix $(DESTDIR)$(man3dir)/,$(notdir $(wildcard man/*.3))) \
-		$(addprefix $(DESTDIR)$(man4dir)/,$(notdir $(wildcard man/*.4))) \
-		$(addprefix $(DESTDIR)$(man5dir)/,$(notdir $(wildcard man/*.5))) \
-		$(addprefix $(DESTDIR)$(man6dir)/,$(notdir $(wildcard man/*.6))) \
-		$(addprefix $(DESTDIR)$(man7dir)/,$(notdir $(wildcard man/*.7))) \
-		$(addprefix $(DESTDIR)$(man8dir)/,$(notdir $(wildcard man/*.8))) \
-		$(addprefix $(DESTDIR)$(man9dir)/,$(notdir $(wildcard man/*.9))))
-$(DESTDIR)$(man1dir)/%.1: man/%.1 | $(DESTDIR)$(man1dir)
-	install $^ $@
-$(DESTDIR)$(man2dir)/%.2: man/%.2 | $(DESTDIR)$(man2dir)
-	install $^ $@
-$(DESTDIR)$(man3dir)/%.3: man/%.3 | $(DESTDIR)$(man3dir)
-	install $^ $@
-$(DESTDIR)$(man4dir)/%.4: man/%.4 | $(DESTDIR)$(man4dir)
-	install $^ $@
-$(DESTDIR)$(man5dir)/%.5: man/%.5 | $(DESTDIR)$(man5dir)
-	install $^ $@
-$(DESTDIR)$(man6dir)/%.6: man/%.6 | $(DESTDIR)$(man6dir)
-	install $^ $@
-$(DESTDIR)$(man7dir)/%.7: man/%.7 | $(DESTDIR)$(man7dir)
-	install $^ $@
-$(DESTDIR)$(man8dir)/%.8: man/%.8 | $(DESTDIR)$(man8dir)
-	install $^ $@
-$(DESTDIR)$(man9dir)/%.9: man/%.9 | $(DESTDIR)$(man9dir)
-	install $^ $@
-
+	rm -f $(sort $(foreach n,$(man_sections),$(addprefix $(DESTDIR)$(man$ndir)/,$(notdir $(filter %.$n,$(manpages))))))
+# Remove all built manual pages.
+clean::
+	rm -f $(addprefix man/,$(manpages))
+ifneq ($(srcdir),.)
+	test -d man && rmdir man || :
+endif
+$(CURDIR)/man:
+	install -d $@
+man/%: man/%.in | $(CURDIR)/man
+	sed -e 's/@VERSION@/$(VERSION)/g' $< >$@
+define man_tmpl
+$$(DESTDIR)$$(man$1dir)/%.$1: man/%.$1 | $$(DESTDIR)$$(man$1dir)
+	install $$^ $$@
+endef
+$(foreach n,$(man_sections),$(eval $(call man_tmpl,$n)))
 
 # Build and install the static library.
 all:: libzt.a
@@ -218,25 +238,27 @@ zt-test.o: CFLAGS += -g
 # We may need to add some options to BSD tar, this is where we store them.
 bsd_tar_options ?=
 
+makefiles = \
+	Makefile.Darwin.mk \
+	Makefile.FreeBSD.mk \
+	Makefile.GNU-kFreeBSD.mk \
+	Makefile.GNU.mk \
+	Makefile.Linux.mk \
+	Makefile.NetBSD.mk \
+	Makefile.OpenBSD.mk \
+	Makefile.SunOS.mk \
+	Makefile.UNIX.mk \
+	Makefile.Windows.mk
+
 # Create the release archive. Instructions on how to make it
 # differ based on flavor of the tools used.
 dist:: $(NAME)_$(VERSION).tar.gz
 $(NAME)_$(VERSION).tar.gz: $(sort $(addprefix $(srcdir)/, \
-	zt.c zt.h zt-test.c libzt.map libzt.export_list \
-	man/ZT_CMP_BOOL.3 man/ZT_CMP_INT.3 man/ZT_CMP_RUNE.3 man/ZT_CMP_UINT.3 \
-	man/ZT_CMP_PTR.3 man/ZT_CURRENT_LOCATION.3 man/ZT_FALSE.3 \
-	man/ZT_NOT_NULL.3 man/ZT_NULL.3 man/ZT_TRUE.3 man/libzt-test.1 \
-	man/libzt.3 man/zt_check.3 man/zt_claim.3 man/zt_location.3 \
-	man/zt_location_at.3 man/zt_main.3 man/zt_pack_boolean.3 \
-	man/zt_pack_integer.3 man/zt_pack_nothing.3 man/zt_pack_pointer.3 \
-	man/zt_pack_rune.3 man/zt_pack_string.3 man/zt_pack_unsigned.3 \
-	man/zt_test.3 man/zt_test_case_func.3 man/zt_test_suite_func.3 \
-	man/zt_value.3 man/zt_visit_test_case.3 man/zt_visitor.3 examples/demo.c \
-	examples/test-root-user.c \
-	examples/GNUmakefile configure GNUmakefile .makefiles/Makefile.Darwin.mk \
-	.makefiles/Makefile.FreeBSD.mk .makefiles/Makefile.Linux.mk \
-	.makefiles/Makefile.NetBSD.mk .makefiles/Makefile.OpenBSD.mk \
-	.makefiles/Makefile.SunOS.mk .makefiles/Makefile.UNIX.mk \
+	zt.c zt.h zt-test.c \
+	libzt.map libzt.export_list libzt.def \
+	configure GNUmakefile $(foreach f,$(makefiles),.makefiles/$f) build.bat \
+	$(foreach f,$(manpages),man/$f.in) \
+	examples/demo.c examples/test-root-user.c examples/GNUmakefile \
 	.pvs-filter.awk .pvs-studio.cfg README.md LICENSE NEWS))
 
 ifneq ($(shell command -v tar 2>/dev/null),)
@@ -341,12 +363,6 @@ else
 fmt:
 	echo "error: clang-format not found, cannot format" >&2
 	exit 1
-endif
-
-# GNU man can be used to perform rudimentary validation of manual pages.
-ifneq ($(and $(shell command -v man 2>/dev/null),$(shell man --help 2>&1 | grep -F -- --warning)),)
-static-check:: $(wildcard $(srcdir)/man/*.3)
-	LC_ALL=en_US.UTF-8 MANROFFSEQ='' MANWIDTH=80 man --warnings -E UTF-8 -l -Tutf8 -Z $^ 2>&1 >/dev/null | diff -u - /dev/null
 endif
 
 # Run static checkers when checking.

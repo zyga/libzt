@@ -1,0 +1,61 @@
+.Dd January 12, 2020
+.Os libzt @VERSION@
+.Dt ZT_FALSE 3 PRM
+.Sh NAME
+.Nm ZT_FALSE ,
+.Nm zt_false
+.Nd construct a claim that a value is false
+.Sh SYNOPSIS
+.In zt.h
+.Bd -literal
+#define ZT_FALSE(value) \\
+  zt_false( \\
+    ZT_CURRENT_LOCATION(), \\
+    zt_pack_boolean((value), #value)) \\
+.Ed
+.Ft zt_claim
+.Fo zt_false
+.Fa "zt_location location"
+.Fa "zt_value value"
+.Fc
+.Sh DESCRIPTION
+.Fn zt_false
+constructs a claim that a given value is false. It should be used through the
+macro
+.Fn ZT_FALSE ,
+which passes source code location and packs argument.
+.Pp
+.Fn zt_false
+can be used to check custom properties by calling arbitrary verification logic.
+The disadvantage of this approach is that on failure, the error message cannot
+precisely explain the problem.
+.Sh IMPLEMENTATION NOTES
+.Fn ZT_FALSE
+evaluates
+.Em value
+only once.
+.Sh RETURN VALUES
+Both the macro and the function return a claim structure with the right
+attributes set. The returned claim is usually passed to
+.Fn zt_check
+or to
+.Fn zt_assert .
+.Sh SEE ALSO
+.Xr ZT_CMP_BOOL 3 ,
+.Xr ZT_CMP_RUNE 3 ,
+.Xr ZT_CMP_CSTR 3 ,
+.Xr ZT_CMP_INT 3 ,
+.Xr ZT_CMP_PTR 3 ,
+.Xr ZT_CMP_UINT 3 ,
+.Xr ZT_FALSE 3 ,
+.Xr ZT_NOT_NULL 3 ,
+.Xr ZT_NULL 3 ,
+.Xr zt_check 3 ,
+.Sh HISTORY
+The
+.Fn ZT_FALSE
+macro and the
+.Fn zt_false
+function first appeared in libzt 0.1
+.Sh AUTHORS
+.An "Zygmunt Krynicki" Aq Mt me@zygoon.pl
