@@ -54,7 +54,7 @@ $(info Use ./configure to disable this mechanism)
 ifneq ($(or $(is_gcc),$(is_clang)),)
 CFLAGS += -Wall -Wextra -Wpedantic -Wconversion -Wchar-subscripts
 endif
-ifneq ($(is_watcom)),)
+ifneq ($(is_watcom),)
 CFLAGS += -Wall -Wextra
 endif
 CFLAGS += -O2
