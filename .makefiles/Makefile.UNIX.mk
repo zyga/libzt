@@ -35,6 +35,7 @@ endif
 # Compiler defaults unless changed by GNUmakefile.configure.mk
 CPPFLAGS ?=
 CFLAGS ?=
+CXXFLAGS ?=
 ARFLAGS = -cr
 TARGET_ARCH ?=
 LDLIBS ?=
