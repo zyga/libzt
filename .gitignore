@@ -28,9 +28,6 @@ libzt-test.exe
 *.profdata
 *.profraw
 
-# Build directories
-build-*
-
 # Object files
 *.o
 *.obj
@@ -43,7 +40,7 @@ build-*
 # shared libraries and plugins
 *.dll
 *.so
-*.so.*
+*.so.1
 *.dylib
 *.bundle
 
@@ -54,3 +51,7 @@ pvs-report/
 
 # Configured in-tree build
 GNUmakefile.configure.mk
+.version-from-git
+
+# Manual pages
+man/*.[123456789]

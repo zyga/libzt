@@ -34,6 +34,11 @@ Changes in 0.3:
    Clang and the OpenWatcom compilers. Using OpenWatcom from the open-watcom
    snap allows cross-compiling libzt for DOS and other older targets.
 
+ * The build system is now decoupled from libzt and can be used for other
+   projects. Currently a copy resides in-tree but at some later date it may
+   become a new development-only dependency. Distribution tarballs will not
+   require any new dependencies.
+
 Changes in 0.2:
 
  * Argument type to all unit test functions was typedef'd

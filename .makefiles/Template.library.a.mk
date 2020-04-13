@@ -14,4 +14,28 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
 
-include $(srcdir)/.makefiles/Makefile.UNIX.mk
+$(eval $(call import,Module.directories))
+$(eval $(call import,Module.toolchain))
+
+Template.library.a.variables=sources objects
+define Template.library.a.spawn
+ifneq ($$(suffix $1),.a)
+$$(error $1 must end with ".a")
+endif
+$1.sources ?= $$(error define $1.sources)
+$1.objects ?= $$(patsubst %.c,$1-%.o,$$(filter %.c,$$($1.sources)))
+
+all:: $1
+clean::
+	rm -f $1
+uninstall::
+	rm -f $$(DESTDIR)$$(libdir)/$1
+install:: $$(DESTDIR)$$(libdir)/$1
+
+$1: $$($1.objects)
+	$$(AR) $$(ARFLAGS) $$@ $$^
+$$($1.objects): $1-%.o: %.c
+	$$(strip $$(COMPILE.c) -o $$@ $$<)
+$$(DESTDIR)$$(libdir)/$1: $1 | $$(DESTDIR)$$(libdir)
+	install $$^ $$@
+endef
