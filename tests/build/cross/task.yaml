@@ -1,0 +1,33 @@
+summary: Cross-build with gcc
+systems: [debian-sid]
+environment:
+    TRIPLET/x32: x86_64-linux-gnux32
+    PKG/x32: gcc-x86-64-linux-gnux32
+    FILE/x32: "ELF 32-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /libx32/ld-linux-x32.so.2,"
+
+    TRIPLET/armhf: arm-linux-gnueabihf
+    PKG/armhf: gcc-arm-linux-gnueabihf
+    FILE/armhf: "ELF 32-bit LSB shared object, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-armhf.so.3,"
+
+    TRIPLET/aarch64: aarch64-linux-gnu
+    PKG/aarch64: gcc-aarch64-linux-gnu
+    FILE/aarch64: "ELF 64-bit LSB shared object, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1,"
+
+    TRIPLET/powerpc64le: powerpc64le-linux-gnu
+    PKG/powerpc64le: gcc-powerpc64le-linux-gnu
+    FILE/powerpc64le: "ELF 64-bit LSB shared object, 64-bit PowerPC or cisco 7500, version 1 (SYSV), dynamically linked, interpreter /lib64/ld64.so.2,"
+
+    TRIPLET/riscv64: riscv64-linux-gnu
+    PKG/riscv64: gcc-riscv64-linux-gnu
+    FILE/riscv64: "ELF 64-bit LSB shared object, UCB RISC-V, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-riscv64-lp64d.so.1,"
+prepare: |
+    apt-get install --yes $PKG
+    $SPREAD_PATH/configure --build=$(dpkg-architecture -qDEB_HOST_GNU_TYPE) --host=$TRIPLET
+execute: |
+  make
+  file libzt-test | grep -F "$FILE"
+  make check
+restore: |
+  make clean
+  apt-get remove --yes --purge $PKG 
+  apt-get autoremove --yes

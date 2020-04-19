@@ -1,0 +1,129 @@
+project: libzt
+path: /root/libzt
+backends:
+  lxd:
+    systems:
+      - ubuntu-14.04
+      - ubuntu-16.04
+      - ubuntu-18.04
+      - ubuntu-20.04
+      - debian-10:
+          environment:
+            PATH: $PATH:/snap/bin
+      - debian-sid:
+          environment:
+            PATH: $PATH:/snap/bin
+      - fedora-31:
+          # FIXME: Fedora and CentOS are disabled because I cannot figure out how to proxy their archives correctly.
+          manual: true
+          environment:
+            PATH: $PATH:/var/lib/snapd/snap/bin:/snap/bin
+      - centos-7:
+          manual: true
+          environment:
+            PATH: $PATH:/var/lib/snapd/snap/bin:/snap/bin
+      - centos-8:
+          manual: true
+          environment:
+            PATH: $PATH:/var/lib/snapd/snap/bin:/snap/bin
+environment:
+    MAKEFLAGS: --warn-undefined-variables
+    PKG_PROXY: "$(HOST: echo \"$PKG_PROXY\")"
+prepare: |
+  # Establish consistent ownership
+  chown -R root.root $SPREAD_PATH
+  # Install dependencies
+  case $SPREAD_SYSTEM in
+    ubuntu-*)
+      test -n "$PKG_PROXY" && ( echo "Acquire::HTTP::Proxy \"$PKG_PROXY\";" >/etc/apt/apt.conf.d/00proxy )
+      apt-get update
+      apt-get install -y eatmydata
+      eatmydata apt-get install -y make gcc clang tree
+      ;;
+    debian-*)
+      test -n "$PKG_PROXY" && ( echo "Acquire::HTTP::Proxy \"$PKG_PROXY\";" >/etc/apt/apt.conf.d/00proxy )
+      apt-get update
+      apt-get install -y eatmydata
+      eatmydata apt-get install -y make gcc clang tree
+      ;;
+    fedora-*)
+      test -n "$PKG_PROXY" && ( echo "proxy=$PKG_PROXY" >>/etc/yum.conf)
+      dnf install -y make gcc clang tree
+      ;;
+    centos-*)
+      test -n "$PKG_PROXY" && ( echo "proxy=$PKG_PROXY" >>/etc/yum.conf)
+      yum install -y make gcc clang tree
+      ;;
+  esac
+  # Clean the project tree
+  make distclean
+restore: |
+  case $SPREAD_SYSTEM in
+    ubuntu-*|debian-*)
+      eatmydata apt-get remove -y --purge make gcc clang tree
+      apt-get autoremove -y --purge
+      ;;
+    fedora-*)
+      dnf remove -y make gcc clang tree
+      ;;
+    centos-*)
+      dnf remove -y make gcc clang tree
+      ;;
+  esac
+suites:
+  tests/build/:
+    summary: Build with various configurations
+  tests/use/:
+    prepare: |
+      $SPREAD_PATH/configure
+      make
+      make install
+      ldconfig
+    restore: |
+      make uninstall
+      ldconfig
+    summary: Use the library in practice
+  tests/snaps/:
+    summary: Test suite that depends on snapd
+    systems: [-ubuntu-14.04] # snapd doesn't work in Ubuntu 14.04 container
+    prepare: |
+      # Work around snapd bug in containers
+      mount --make-rshared /
+      # Install dependencies
+      case $SPREAD_SYSTEM in
+        ubuntu-*)
+          eatmydata apt-get install -y fuse squashfuse dosbox
+          ;;
+        debian-*)
+          eatmydata apt-get install -y fuse squashfuse dosbox snapd
+          ;;
+        fedora-*)
+          dnf install -y snapd squashfuse dosbox
+          ;;
+        centos-*)
+          yum install -y snapd squashfuse dosbox
+          ;;
+      esac
+      # Disable parallel-instances: https://bugs.launchpad.net/snapd/+bug/1873701
+      snap set core experimental.parallel-instances=false
+      # Install the core snap, this gets us most recent snapd
+      for _ in $(seq 3); do snap install core && break; done
+      snap list core
+    restore: |
+      case $SPREAD_SYSTEM in
+        ubuntu-*)
+          eatmydata apt-get remove -y --purge fuse squashfuse dosbox
+          apt-get autoremove -y --purge
+          ;;
+        debian-*)
+          rm -rf /var/cache/snapd/aux
+          eatmydata apt-get remove -y --purge fuse squashfuse snapd dosbox
+          apt-get autoremove -y --purge
+          ;;
+        fedora-*)
+          dnf remove -y snapd squashfuse dosbox
+          ;;
+        centos-*)
+          dnf remove -y snapd squashfuse dosbox
+          ;;
+      esac

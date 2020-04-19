@@ -55,3 +55,6 @@ GNUmakefile.configure.mk
 
 # Manual pages
 man/*.[123456789]
+
+# Spread
+.spread-reuse.yaml

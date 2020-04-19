@@ -1,0 +1,45 @@
+.
+└── usr
+    └── local
+        ├── bin
+        │   └── libzt-test
+        ├── include
+        │   └── zt.h
+        ├── lib
+        │   ├── libzt.a
+        │   ├── libzt.so -> libzt.so.1
+        │   └── libzt.so.1
+        └── share
+            └── man
+                ├── man1
+                │   └── libzt-test.1
+                └── man3
+                    ├── ZT_CMP_BOOL.3
+                    ├── ZT_CMP_INT.3
+                    ├── ZT_CMP_PTR.3
+                    ├── ZT_CMP_RUNE.3
+                    ├── ZT_CMP_UINT.3
+                    ├── ZT_CURRENT_LOCATION.3
+                    ├── ZT_FALSE.3
+                    ├── ZT_NOT_NULL.3
+                    ├── ZT_NULL.3
+                    ├── ZT_TRUE.3
+                    ├── libzt.3
+                    ├── zt_check.3
+                    ├── zt_claim.3
+                    ├── zt_location.3
+                    ├── zt_location_at.3
+                    ├── zt_main.3
+                    ├── zt_pack_boolean.3
+                    ├── zt_pack_integer.3
+                    ├── zt_pack_nothing.3
+                    ├── zt_pack_pointer.3
+                    ├── zt_pack_rune.3
+                    ├── zt_pack_string.3
+                    ├── zt_pack_unsigned.3
+                    ├── zt_test.3
+                    ├── zt_test_case_func.3
+                    ├── zt_test_suite_func.3
+                    ├── zt_value.3
+                    ├── zt_visit_test_case.3
+                    └── zt_visitor.3

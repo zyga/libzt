@@ -1,0 +1,15 @@
+summary: Build and run examples
+prepare: |
+    make -f $SPREAD_PATH/examples/GNUmakefile VPATH=$SPREAD_PATH/examples
+execute: |
+    # Demo works
+    ! ./demo >demo.actual.stdout 2>demo.actual.stderr
+    sed -i -e "s@$SPREAD_PATH@<<SPREAD_PATH>>@g" demo.actual.stderr
+    diff -u demo.actual.stdout demo.expected.stdout
+    diff -u demo.actual.stderr demo.expected.stderr
+    # Demo is dynamically linked
+    ldd demo | MATCH libzt
+    # The other example also works
+    ./test-root-user
+restore: |
+    make -f $SPREAD_PATH/examples/GNUmakefile VPATH=$SPREAD_PATH/examples clean

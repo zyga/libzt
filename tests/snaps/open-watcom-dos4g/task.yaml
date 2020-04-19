@@ -1,0 +1,18 @@
+summary: Configure, build and test with open-watcom
+prepare: |
+  snap install --beta open-watcom
+  snap install dos32a
+  cp /snap/dos32a/current/binw/dos32a.exe DOS4GW.EXE
+  $SPREAD_PATH/configure CC=open-watcom.owcc-dos4g
+execute: |
+  make
+  test -e libzt-test.exe && mv libzt-test.exe zt-test.exe
+  test -e libzt-test && mv libzt-test zt-test.exe
+  SDL_VIDEODRIVER=dummy dosbox -c 'MOUNT C .' -c 'C:' -c 'zt-test.exe >ACTUAL.DOS' -c 'exit'
+  diff -u ACTUAL.DOS expected.dos
+restore: |
+  make clean
+  snap remove --purge open-watcom
+  snap remove --purge dos32a
+  rm -f DOS4GW.EXE
+  rm -rf ~/.dosbox

@@ -1,0 +1,10 @@
+.
+└── usr
+    └── local
+        ├── bin
+        ├── include
+        ├── lib
+        └── share
+            └── man
+                ├── man1
+                └── man3
