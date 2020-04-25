@@ -1,1 +1,1 @@
-nmake /f .makefiles/Makefile.Windows.mk
+nmake /f Makefile.nmake.mk

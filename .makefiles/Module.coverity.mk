@@ -14,4 +14,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
 
-include $(srcdir)/.makefiles/Makefile.UNIX.mk
+coverity.sources ?= $(error define coverity.sources)
+
+clean::
+	rm -rf cov-int
+	rm -f $(NAME)-$(VERSION)-coverity.tar.gz
+
+cov-int: $(coverity.sources) $(MAKEFILE_LIST)
+	cov-build --dir $@ $(MAKE)
+
+$(NAME)-$(VERSION)-coverity.tar.gz: cov-int
+	tar zcf $@ $<

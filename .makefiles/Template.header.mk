@@ -14,4 +14,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
 
-include $(srcdir)/.makefiles/Makefile.UNIX.mk
+$(eval $(call import,Module.directories))
+
+$(DESTDIR)$(includedir)/%.h: %.h | $(DESTDIR)$(includedir)
+	install $^ $@
+
+Template.header.variables=
+define Template.header.spawn
+install:: $$(DESTDIR)$$(includedir)/$1
+uninstall::
+	rm -f $$(DESTDIR)$$(includedir)/$1
+endef

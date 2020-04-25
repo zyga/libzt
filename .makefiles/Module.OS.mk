@@ -14,6 +14,28 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
 
+# Guesstimate the OS used.
+OS := $(shell uname -s | tr '/' '-')
+$(if $(findstring os,$(DEBUG)),$(info DEBUG: guessed OS=$(OS)))
+
+# XXX: maybe better?
+OS.has_a ?= yes
+OS.has_elf ?=
+OS.has_macho ?=
+OS.has_dll ?=
+
+ifneq (,$(findstring $(OS),Linux FreeBSD NetBSD OpenBSD GNU GNU-kFreeBSD SunOS))
+OS.has_elf = yes
+endif
+ifeq ($(OS),Darwin)
+OS.has_macho = yes
+endif
+ifeq ($(OS),SunOS)
 # Solaris doesn't seem to provide any aliases or symlinks for gcc.
 CC := gcc
-include $(srcdir)/.makefiles/Makefile.UNIX.mk
+endif
+
+$(if $(findstring os,$(DEBUG)),$(info DEBUG: OS.has_a=$(OS.has_a)))
+$(if $(findstring os,$(DEBUG)),$(info DEBUG: OS.has_elf=$(OS.has_elf)))
+$(if $(findstring os,$(DEBUG)),$(info DEBUG: OS.has_macho=$(OS.has_macho)))
+$(if $(findstring os,$(DEBUG)),$(info DEBUG: OS.has_dll=$(OS.has_dll)))
