@@ -39,6 +39,11 @@ Changes in 0.3:
    become a new development-only dependency. Distribution tarballs will not
    require any new dependencies.
 
+ * The tree now contains comprehensive integration tests that build and
+   exercise the library on several different Linux distributions. One of the
+   tests cross builds libzt for DOS and tests it with DosBox and DOS/32
+   extender.
+
 Changes in 0.2:
 
  * Argument type to all unit test functions was typedef'd

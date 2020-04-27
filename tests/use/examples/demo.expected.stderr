@@ -1,0 +1,5 @@
+<<SPREAD_PATH>>/examples/demo.c:17: assertion failed because 2 + 2 != 4 is false
+<<SPREAD_PATH>>/examples/demo.c:18: assertion failed because 2 + 2 != 5 is true
+<<SPREAD_PATH>>/examples/demo.c:19: assertion 2 + 2 == 5 failed because 4 != 5
+<<SPREAD_PATH>>/examples/demo.c:20: assertion false == true failed because false != true
+<<SPREAD_PATH>>/examples/demo.c:25: assertion 0 == -1 failed because 0 != -1

@@ -1,0 +1,11 @@
+summary: Configure, build, install then uninstall
+prepare: |
+  $SPREAD_PATH/configure
+execute: |
+  make
+  make install DESTDIR=$(pwd)/fs
+  make uninstall DESTDIR=$(pwd)/fs
+  (cd fs && tree --charset=utf-8 -v --noreport .) > actual.tree
+  diff -u actual.tree expected.tree
+restore: |
+  make clean

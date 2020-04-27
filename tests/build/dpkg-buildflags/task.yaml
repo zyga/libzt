@@ -1,0 +1,8 @@
+summary: Configure, build and test with dpkg-buildflags
+prepare: |
+  $SPREAD_PATH/configure $(dpkg-buildflags --export=configure)
+execute: |
+  make
+  make check
+restore: |
+  make clean

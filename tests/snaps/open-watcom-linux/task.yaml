@@ -1,0 +1,10 @@
+summary: Configure, build and test with open-watcom 
+prepare: |
+  snap install --beta open-watcom
+  $SPREAD_PATH/configure CC=open-watcom.owcc-linux
+execute: |
+  make
+  make check
+restore: |
+  make clean
+  snap remove --purge open-watcom

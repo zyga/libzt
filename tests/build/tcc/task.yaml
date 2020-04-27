@@ -1,0 +1,12 @@
+summary: Configure, build and test with tcc
+systems: [ubuntu-*, debian-*]
+prepare: |
+  apt-get install -y tcc
+  $SPREAD_PATH/configure CC=tcc
+execute: |
+  make
+  make check
+restore: |
+  make clean
+  apt-get remove -y --purge tcc
+  apt-get autoremove -y --purge
