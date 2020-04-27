@@ -1,18 +1,18 @@
 # Copyright 2019-2020 Zygmunt Krynicki.
 #
-# This file is part of libzt.
+# This file is part of zmk.
 #
-# Libzt is free software: you can redistribute it and/or modify
+# Zmk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License.
 #
-# Libzt is distributed in the hope that it will be useful,
+# Zmk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
+# along with Zmk.  If not, see <https://www.gnu.org/licenses/>.
 
 # Craft a better version if we have Git.
 
@@ -21,7 +21,7 @@ VERSION_static ?= $(VERSION)
 # If we have the git program and the .git directory then we can just ask git.
 ifneq (,$(and $(shell command -v git 2>/dev/null),$(wildcard $(srcdir)/.git)))
 VERSION_static := $(VERSION)
-VERSION := $(shell GIT_DIR=$(srcdir)/.git git describe --abbrev=10 --tags)
+VERSION := $(or $(shell GIT_DIR=$(srcdir)/.git git describe --abbrev=10 --tags 2>/dev/null),$(VERSION))
 else
 # If we don't have .git directory and the git program, but we have the
 # .version-from-git file, then use that instead.

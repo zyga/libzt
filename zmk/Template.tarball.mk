@@ -1,19 +1,18 @@
 # Copyright 2019-2020 Zygmunt Krynicki.
 #
-# This file is part of libzt.
+# This file is part of zmk.
 #
-# Libzt is free software: you can redistribute it and/or modify
+# Zmk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License.
 #
-# Libzt is distributed in the hope that it will be useful,
+# Zmk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
-
+# along with Zmk.  If not, see <https://www.gnu.org/licenses/>.
 $(eval $(call import,Module.directories))
 $(eval $(call import,Module.OS))
 
@@ -32,7 +31,7 @@ Template.tarball.variables=name files
 
 define Template.tarball.spawn
 $1.name ?= $$(patsubst %.tar$$(suffix $1),%,$1)
-$1.files ?= $$(error define $1.files)
+$1.files ?= $$(error define $1.files - the list of files to include in the tarball)
 
 dist:: $1
 $1: $$(sort $$(addprefix $$(srcdir)/,$$($1.files)))

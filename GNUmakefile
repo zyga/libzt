@@ -20,8 +20,8 @@ VERSION = 0.2
 srcdir ?= .
 # Include optional generated makefile from the configuration system.
 -include GNUmakefile.configure.mk
-# Include the entrypoint of the makefile library.
-include $(srcdir)/.makefiles/Core.mk
+# Use bundled ZMK
+include $(srcdir)/z.mk
 
 # Manual pages
 manpages = \
@@ -63,12 +63,12 @@ $(eval $(call import,Module.git-version))
 # The release tarball.
 $(NAME)_$(VERSION).tar.gz.files += zt.h zt.c zt-test.c
 $(NAME)_$(VERSION).tar.gz.files += libzt.map libzt.export_list libzt.def
-$(NAME)_$(VERSION).tar.gz.files += configure GNUmakefile build.bat
+$(NAME)_$(VERSION).tar.gz.files += configure GNUmakefile build.bat Makefile.nmake.mk
 $(NAME)_$(VERSION).tar.gz.files += examples/demo.c examples/test-root-user.c examples/GNUmakefile
 $(NAME)_$(VERSION).tar.gz.files += .pvs-studio.cfg
 $(NAME)_$(VERSION).tar.gz.files += README.md LICENSE NEWS
 $(NAME)_$(VERSION).tar.gz.files += $(foreach m,$(manpages),man/$m.in)
-$(NAME)_$(VERSION).tar.gz.files += $(Core.DistFiles)
+$(NAME)_$(VERSION).tar.gz.files += $(ZMK.DistFiles)
 ifneq ($(VERSION),$(VERSION_static))
 $(NAME)_$(VERSION).tar.gz.files += .version-from-git
 endif
