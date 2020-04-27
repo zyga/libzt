@@ -74,6 +74,9 @@ $(NAME)_$(VERSION).tar.gz.files += .version-from-git
 endif
 $(eval $(call spawn,Template.tarball,$(NAME)_$(VERSION).tar.gz))
 
+$(NAME)_$(VERSION).tar.gz.asc: $(NAME)_$(VERSION).tar.gz
+	gpg --sign --armour --detach $<
+
 # Compiling and configuration.
 $(eval $(call import,Module.toolchain))
 $(eval $(call import,Module.configure))
