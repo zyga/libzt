@@ -29,5 +29,5 @@ execute: |
   make check
 restore: |
   make clean
-  apt-get remove --yes --purge $PKG 
+  apt-get remove --yes --purge $PKG
   apt-get autoremove --yes

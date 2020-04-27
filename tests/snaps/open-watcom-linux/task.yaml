@@ -1,4 +1,4 @@
-summary: Configure, build and test with open-watcom 
+summary: Configure, build and test with open-watcom
 prepare: |
   snap install --beta open-watcom
   $SPREAD_PATH/configure CC=open-watcom.owcc-linux

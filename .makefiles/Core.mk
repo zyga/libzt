@@ -40,7 +40,7 @@ check:: static-check
 
 # Display diagnostic messages when DEBUG has specific items.
 _comma=,
-DEBUG ?= 
+DEBUG ?=
 DEBUG := $(subst $(_comma), ,$(DEBUG))
 
 # List of imported modules.
