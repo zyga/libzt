@@ -1,18 +1,18 @@
 # Copyright 2019-2020 Zygmunt Krynicki.
 #
-# This file is part of libzt.
+# This file is part of zmk.
 #
-# Libzt is free software: you can redistribute it and/or modify
+# Zmk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License.
 #
-# Libzt is distributed in the hope that it will be useful,
+# Zmk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
+# along with Zmk.  If not, see <https://www.gnu.org/licenses/>.
 
 $(eval $(call import,Module.OS))
 
@@ -48,7 +48,7 @@ is_clang=$(if $(findstring clang,$(_cc)),yes)
 $(if $(findstring toolchain,$(DEBUG)),$(info DEBUG: is_clang=$(is_clang)))
 is_watcom=$(if $(findstring watcom,$(_cc)),yes)
 $(if $(findstring toolchain,$(DEBUG)),$(info DEBUG: is_watcom=$(is_watcom)))
-is_watcom_exe=$(if $(findstring dos4g,$(_cc)),yes)
+is_watcom_exe=$(if $(or $(findstring dos,$(_cc)),$(findstring win,$(_cc))),yes)
 $(if $(findstring toolchain,$(DEBUG)),$(info DEBUG: is_watcom_exe=$(is_watcom_exe)))
 is_tcc=$(if $(findstring tcc,$(_cc)),yes)
 $(if $(findstring toolchain,$(DEBUG)),$(info DEBUG: is_tcc=$(is_tcc)))

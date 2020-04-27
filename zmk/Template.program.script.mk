@@ -1,18 +1,18 @@
 # Copyright 2019-2020 Zygmunt Krynicki.
 #
-# This file is part of libzt.
+# This file is part of zmk.
 #
-# Libzt is free software: you can redistribute it and/or modify
+# Zmk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License.
 #
-# Libzt is distributed in the hope that it will be useful,
+# Zmk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
+# along with Zmk.  If not, see <https://www.gnu.org/licenses/>.
 
 $(eval $(call import,Module.directories))
 
@@ -25,17 +25,10 @@ endif
 
 Template.program.script.variables=interp install_dir
 define Template.program.script.spawn
-$1.interp ?= $$(error define $1.interp)
+$1.interp ?= $$(error define $1.interp - the script interpreter name, sh, bash or other)
 $1.install_dir ?= $$(bindir)
-
-ifneq ($$($1.install_dir),noinst)
-install:: $$(DESTDIR)$$($1.install_dir)/$1
-uninstall::
-	rm -f $$(DESTDIR)$$($1.install_dir)/$1
-$$(DESTDIR)$$($1.install_dir)/$1: $1 | $$(DESTDIR)$$($1.install_dir)
-	install $$^ $$@
-endif
-
+$1.install_mode ?= 0755
+$$(eval $$(call spawn,Template.data,$1))
 ifneq ($$(findstring $$($1.interp),sh bash),)
 static-check-shellcheck: $1
 endif

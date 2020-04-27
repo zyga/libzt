@@ -1,18 +1,18 @@
 # Copyright 2019-2020 Zygmunt Krynicki.
 #
-# This file is part of libzt.
+# This file is part of zmk.
 #
-# Libzt is free software: you can redistribute it and/or modify
+# Zmk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License.
 #
-# Libzt is distributed in the hope that it will be useful,
+# Zmk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
+# along with Zmk.  If not, see <https://www.gnu.org/licenses/>.
 
 # Installation location
 DESTDIR ?=
@@ -48,12 +48,16 @@ man7dir ?= $(mandir)/man7
 man8dir ?= $(mandir)/man8
 man9dir ?= $(mandir)/man9
 
-# Create standard directories on demand.
-$(sort $(DESTDIR) $(addprefix $(DESTDIR), \
+# List of standard directories. Those are created with a single rule below, and
+# can be safely used as a order-only dependency.
+Directories.POSIX = \
 	$(prefix) $(exec_prefix) $(bindir) $(sbindir) $(libexecdir) \
 	$(datarootdir) $(datadir) $(sysconfdir) $(sharedstatedir) \
 	$(localstatedir) $(runstatedir) $(includedir) $(oldincludedir) \
 	$(docdir) $(infodir) $(libdir) $(localedir) $(mandir) $(man1dir) \
 	$(man2dir) $(man3dir) $(man4dir) $(man5dir) $(man6dir) $(man7dir) \
-	$(man8dir) $(man9dir))):
+	$(man8dir) $(man9dir)
+
+# Create standard directories on demand.
+$(sort $(DESTDIR) $(addprefix $(DESTDIR),$(Directories.POSIX))):
 	install -d $@

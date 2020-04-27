@@ -1,18 +1,18 @@
 # Copyright 2019-2020 Zygmunt Krynicki.
 #
-# This file is part of libzt.
+# This file is part of zmk.
 #
-# Libzt is free software: you can redistribute it and/or modify
+# Zmk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License.
 #
-# Libzt is distributed in the hope that it will be useful,
+# Zmk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
+# along with Zmk.  If not, see <https://www.gnu.org/licenses/>.
 
 $(eval $(call import,Module.directories))
 $(eval $(call import,Module.toolchain))
@@ -22,7 +22,7 @@ define Template.library.a.spawn
 ifneq ($$(suffix $1),.a)
 $$(error $1 must end with ".a")
 endif
-$1.sources ?= $$(error define $1.sources)
+$1.sources ?= $$(error define $1.sources - the list of source files to compile as a library)
 $1.objects ?= $$(patsubst %.c,$1-%.o,$$(filter %.c,$$($1.sources)))
 
 all:: $1
