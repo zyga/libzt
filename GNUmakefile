@@ -68,14 +68,7 @@ $(NAME)_$(VERSION).tar.gz.files += examples/demo.c examples/test-root-user.c exa
 $(NAME)_$(VERSION).tar.gz.files += .pvs-studio.cfg
 $(NAME)_$(VERSION).tar.gz.files += README.md LICENSE NEWS
 $(NAME)_$(VERSION).tar.gz.files += $(foreach m,$(manpages),man/$m.in)
-$(NAME)_$(VERSION).tar.gz.files += $(ZMK.DistFiles)
-ifneq ($(VERSION),$(VERSION_static))
-$(NAME)_$(VERSION).tar.gz.files += .version-from-git
-endif
-$(eval $(call spawn,Template.tarball,$(NAME)_$(VERSION).tar.gz))
-
-$(NAME)_$(VERSION).tar.gz.asc: $(NAME)_$(VERSION).tar.gz
-	gpg --sign --armour --detach $<
+$(eval $(call spawn,Template.tarball.src,$(NAME)_$(VERSION).tar.gz))
 
 # Compiling and configuration.
 $(eval $(call import,Module.toolchain))
