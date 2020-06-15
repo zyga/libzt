@@ -23,6 +23,11 @@ srcdir ?= .
 # Use bundled ZMK
 include $(srcdir)/z.mk
 
+$(eval $(call ZMK.Import,Toolchain))
+$(eval $(call ZMK.Import,Configure))
+$(eval $(call ZMK.Import,OS))
+$(eval $(call ZMK.Import,GitVersion))
+
 # Manual pages
 manpages = \
 	libzt-test.1 \
@@ -57,9 +62,6 @@ manpages = \
 	zt_visitor.3
 
 
-# Use git to augment version.
-$(eval $(call ZMK.Import,GitVersion))
-
 # The release tarball.
 $(NAME)_$(VERSION).tar.gz.Files += zt.h zt.c zt-test.c
 $(NAME)_$(VERSION).tar.gz.Files += libzt.map libzt.export_list libzt.def
@@ -70,10 +72,6 @@ $(NAME)_$(VERSION).tar.gz.Files += README.md LICENSE NEWS
 $(NAME)_$(VERSION).tar.gz.Files += $(foreach m,$(manpages),man/$m.in)
 $(eval $(call ZMK.Expand,Tarball.Src,$(NAME)_$(VERSION).tar.gz))
 
-# Compiling and configuration.
-$(eval $(call ZMK.Import,Toolchain))
-$(eval $(call ZMK.Import,Configure))
-$(eval $(call ZMK.Import,OS))
 
 # The custom configuration script sets the variable Configure.Configured
 # In its absence provide defaults appropriate for each compiler.
