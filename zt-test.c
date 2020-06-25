@@ -202,7 +202,7 @@ static void selftest_stream_eq_at(FILE* stream, const char* file,
 static void test_MAJOR_MINOR_VERSION(void)
 {
     assert(ZT_MAJOR_VERSION == 0);
-    assert(ZT_MINOR_VERSION == 1);
+    assert(ZT_MINOR_VERSION == 3);
 }
 
 /* packing arguments */

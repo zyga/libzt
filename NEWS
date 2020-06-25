@@ -1,3 +1,8 @@
+Changes in 0.3.1:
+
+ * The build system has been updated to ZMK 0.3.6. This should fix
+   current build issues encountered in Debian.
+
 Changes in 0.3:
 
  * Pointers captured in zt_value by zt_pack_pointer() are now constant.

@@ -15,7 +15,7 @@
 # along with Libzt.  If not, see <https://www.gnu.org/licenses/>.
 
 NAME = libzt
-VERSION = 0.3
+VERSION = 0.3.1
 
 srcdir ?= .
 # Include optional generated makefile from the configuration system.

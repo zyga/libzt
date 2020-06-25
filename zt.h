@@ -26,7 +26,7 @@ extern "C" {
 #include <stdlib.h>
 
 #define ZT_MAJOR_VERSION 0
-#define ZT_MINOR_VERSION 1
+#define ZT_MINOR_VERSION 3
 
 struct zt_test;
 typedef struct zt_test* zt_t;
