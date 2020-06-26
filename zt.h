@@ -64,8 +64,8 @@ typedef struct zt_value {
     union {
         bool boolean;
         int rune;
-        int integer;
-        unsigned unsigned_integer;
+        int integer; /* Deprecated. */
+        unsigned unsigned_integer; /* Deprecated. */
         const char* string;
         const void* pointer;
         intmax_t intmax;

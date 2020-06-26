@@ -1669,7 +1669,7 @@ static void test_ZT_CMP_INT(void)
     assert(claim.make_verifier == zt_verifier_for_integer_relation);
 
     assert(zt_value_kind_of(claim.args[0]) == ZT_INTMAX);
-    assert(claim.args[0].as.integer == 1);
+    assert(claim.args[0].as.intmax == 1);
     assert(strcmp(zt_source_of(claim.args[0]), "a") == 0);
 
     assert(zt_value_kind_of(claim.args[1]) == ZT_STRING);
@@ -1677,7 +1677,7 @@ static void test_ZT_CMP_INT(void)
     assert(strcmp(zt_source_of(claim.args[1]), "==") == 0);
 
     assert(zt_value_kind_of(claim.args[2]) == ZT_INTMAX);
-    assert(claim.args[2].as.integer == -2);
+    assert(claim.args[2].as.intmax == -2);
     assert(strcmp(zt_source_of(claim.args[2]), "b") == 0);
 }
 
@@ -1721,7 +1721,7 @@ static void test_ZT_CMP_UINT(void)
     assert(claim.make_verifier == zt_verifier_for_unsigned_relation);
 
     assert(zt_value_kind_of(claim.args[0]) == ZT_UINTMAX);
-    assert(claim.args[0].as.unsigned_integer == 1);
+    assert(claim.args[0].as.uintmax == 1);
     assert(strcmp(zt_source_of(claim.args[0]), "a") == 0);
 
     assert(zt_value_kind_of(claim.args[1]) == ZT_STRING);
@@ -1729,7 +1729,7 @@ static void test_ZT_CMP_UINT(void)
     assert(strcmp(zt_source_of(claim.args[1]), "==") == 0);
 
     assert(zt_value_kind_of(claim.args[2]) == ZT_UINTMAX);
-    assert(claim.args[2].as.unsigned_integer == 2);
+    assert(claim.args[2].as.uintmax == 2);
     assert(strcmp(zt_source_of(claim.args[2]), "b") == 0);
 }
 
