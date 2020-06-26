@@ -32,6 +32,9 @@ libzt-test.exe
 *.o
 *.obj
 
+# Dependency files
+*.d
+
 # static libraries and associated artefacts
 *.a
 *.lib
