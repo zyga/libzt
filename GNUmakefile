@@ -22,6 +22,7 @@ srcdir ?= .
 -include GNUmakefile.configure.mk
 # Use bundled ZMK
 include $(srcdir)/z.mk
+$(if $(ZMK.Version),,$(error cannot find zmk, please install it from github.com/zyga/zmk))
 
 $(eval $(call ZMK.Import,Toolchain))
 $(eval $(call ZMK.Import,Configure))
