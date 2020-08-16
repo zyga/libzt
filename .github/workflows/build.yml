@@ -23,12 +23,8 @@ jobs:
         sudo make -C zmk-snapshot install
     - name: Bootstrap the configuration system
       run: make configure
-    - name: Configure
-      run: ./configure
-    - name: Build with Make
-      run: make -j2
-    - name: Run various checks
-      run: make check
+    - name: Run distcheck
+      run: make distcheck -j2
     - name: Uninstall zmk snapshot
       if: ${{ steps.zmk.conclusion == 'success' }}
       run: sudo make -C zmk-snapshot uninstall
@@ -51,12 +47,8 @@ jobs:
         sudo make -C zmk-snapshot install
     - name: Bootstrap the configuration system
       run: make configure
-    - name: Configure
-      run: ./configure
-    - name: Build with Make
-      run: make -j2
-    - name: Run various checks
-      run: make check
+    - name: Run distcheck
+      run: make distcheck -j2
     - name: Uninstall zmk snapshot
       if: ${{ steps.zmk.conclusion == 'success' }}
       run: sudo make -C zmk-snapshot uninstall
@@ -79,12 +71,8 @@ jobs:
         sudo make -C zmk-snapshot install
     - name: Bootstrap the configuration system
       run: make configure
-    - name: Configure
-      run: ./configure
-    - name: Build with Make
-      run: make -j4
-    - name: Run various checks
-      run: make check
+    - name: Run distcheck
+      run: make distcheck -j2
     - name: Uninstall zmk snapshot
       if: ${{ steps.zmk.conclusion == 'success' }}
       run: sudo make -C zmk-snapshot uninstall
