@@ -17,12 +17,15 @@
 NAME = libzt
 VERSION = 0.3.1
 
-srcdir ?= .
 # Include optional generated makefile from the configuration system.
 -include GNUmakefile.configure.mk
-# Use bundled ZMK
-include $(srcdir)/z.mk
-$(if $(ZMK.Version),,$(error cannot find zmk, please install it from github.com/zyga/zmk))
+ZMK.SrcDir ?= .
+
+# Use system zmk but fall back to bundled zmk.
+include z.mk
+ifeq ($(value ZMK.Version),)
+include $(ZMK.SrcDir)/z.mk
+endif
 
 $(eval $(call ZMK.Import,Toolchain))
 $(eval $(call ZMK.Import,Configure))
@@ -109,13 +112,13 @@ $(eval $(call ZMK.Expand,Library.A,libzt.a))
 
 ifeq ($(Toolchain.CC.ImageFormat),ELF)
 libzt.so.1.Sources = zt.c
-libzt.so.1.VersionScript = $(srcdir)/libzt.map
+libzt.so.1.VersionScript = $(ZMK.SrcDir)/libzt.map
 $(eval $(call ZMK.Expand,Library.So,libzt.so.1))
 endif
 
 ifeq ($(Toolchain.CC.ImageFormat),Mach-O)
 libzt.1.dylib.Sources = zt.c
-libzt.1.dylib.ExportList = $(srcdir)/libzt.export_list
+libzt.1.dylib.ExportList = $(ZMK.SrcDir)/libzt.export_list
 $(eval $(call ZMK.Expand,Library.DyLib,libzt.1.dylib))
 endif
 
@@ -123,7 +126,7 @@ endif
 all:: $(foreach m,$(manpages),man/$m)
 clean::
 	rm -f $(addprefix man/,$(manpages))
-ifneq ($(srcdir),.)
+ifneq ($(ZMK.SrcDir),.)
 	test -d man && rmdir man || :
 endif
 $(CURDIR)/man: # For out-of-tree builds.
@@ -142,7 +145,7 @@ endif
 
 # Support formatting using clang-format, if installed.
 ifneq ($(shell command -v clang-format 2>/dev/null),)
-fmt:: $(wildcard $(srcdir)/*.[ch] $(srcdir)/examples/*.[ch])
+fmt:: $(wildcard $(ZMK.SrcDir)/*.[ch] $(ZMK.SrcDir)/examples/*.[ch])
 	clang-format -i -style=WebKit $^
 else
 fmt:
