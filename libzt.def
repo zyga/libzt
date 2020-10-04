@@ -1,5 +1,5 @@
 LIBRARY ZT
-VERSION 0.3
+VERSION 0.4
 EXPORTS
 	zt_assert
 	zt_check
@@ -17,3 +17,4 @@ EXPORTS
 	zt_true
 	zt_visit_test_case
 	zt_visit_test_suite
+	zt_visit_benchmark

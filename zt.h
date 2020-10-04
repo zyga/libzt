@@ -31,6 +31,11 @@ extern "C" {
 struct zt_test;
 typedef struct zt_test* zt_t;
 
+typedef struct zt_benchmark {
+    uint64_t n;
+} zt_benchmark;
+typedef struct zt_benchmark* zt_b;
+
 struct zt_visitor_vtab;
 typedef struct zt_visitor {
     void* id;
@@ -39,14 +44,17 @@ typedef struct zt_visitor {
 
 typedef void (*zt_test_case_func)(zt_t);
 typedef void (*zt_test_suite_func)(zt_visitor);
+typedef void (*zt_benchmark_func)(zt_b);
 
 int zt_main(int argc, char** argv, char** envp, zt_test_suite_func tsuite);
 
 void zt_visit_test_suite(zt_visitor v, zt_test_suite_func func, const char* name);
 void zt_visit_test_case(zt_visitor v, zt_test_case_func func, const char* name);
+void zt_visit_benchmark(zt_visitor v, zt_benchmark_func func, const char* name);
 
 #define ZT_VISIT_TEST_SUITE(v, tsuite) zt_visit_test_suite(v, tsuite, #tsuite)
 #define ZT_VISIT_TEST_CASE(v, tcase) zt_visit_test_case(v, tcase, #tcase)
+#define ZT_VISIT_BENCHMARK(v, bench) zt_visit_benchmark(v, bench, #bench)
 
 typedef enum zt_value_kind {
     ZT_NOTHING,

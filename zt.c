@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #if !defined(__GNUC__) && !defined(__clang__)
 #define ZT_UNUSED
@@ -259,9 +260,16 @@ typedef struct zt_test {
     zt_outcome outcome;
 } zt_test;
 
+typedef struct zt_benchmark_internal {
+    zt_benchmark b;
+    const char* name;
+} zt_benchmark_internal;
+/* In reality zt_t is a pointer to zt_benchmark_internal. */
+
 typedef struct zt_visitor_vtab {
     void (*visit_case)(void*, zt_test_case_func, const char* name);
     void (*visit_suite)(void*, zt_test_suite_func, const char* name);
+    void (*visit_benchmark)(void*, zt_benchmark_func, const char* name);
 } zt_visitor_vtab;
 
 typedef struct zt_test_lister {
@@ -337,6 +345,12 @@ void zt_visit_test_case(zt_visitor v, zt_test_case_func func,
     v.vtab->visit_case(v.id, func, name);
 }
 
+void zt_visit_benchmark(zt_visitor v, zt_benchmark_func func,
+    const char* name)
+{
+    v.vtab->visit_benchmark(v.id, func, name);
+}
+
 /* Lister visitor */
 
 static zt_visitor zt_visitor_from_test_lister(zt_test_lister* lister);
@@ -360,9 +374,18 @@ static void zt_test_lister__visit_case(void* id, ZT_UNUSED zt_test_case_func fun
     fprintf(lister->stream, "%*c %s\n", lister->nesting * 3, '-', name);
 }
 
+static void zt_test_lister__visit_benchmark(void* id, ZT_UNUSED zt_benchmark_func func,
+    const char* name)
+{
+    zt_test_lister* lister = (zt_test_lister*)id;
+    (void)func;
+    fprintf(lister->stream, "%*c %s (benchmark)\n", lister->nesting * 3, '-', name);
+}
+
 static const zt_visitor_vtab zt_test_lister__visitor_vtab = {
     /* .visit_case = */ zt_test_lister__visit_case,
     /* .visit_suite = */ zt_test_lister__visit_suite,
+    /* .visit_benchmark = */ zt_test_lister__visit_benchmark,
 };
 
 static zt_visitor zt_visitor_from_test_lister(zt_test_lister* lister)
@@ -447,9 +470,55 @@ static void zt_runner_visitor__visit_case(void* id, zt_test_case_func func,
     }
 }
 
+static void zt_runner_visitor__visit_benchmark(void* id, zt_benchmark_func func,
+    const char* name)
+{
+    zt_test_runner* runner = (zt_test_runner*)id;
+    zt_benchmark_internal benchmark;
+
+    memset(&benchmark, 0, sizeof benchmark);
+
+    /* Run the benchmark function at least once. */
+    if (!runner->verbose || runner->stream_out == NULL) {
+        benchmark.b.n = 1;
+        func(&benchmark.b);
+        return;
+    }
+    if (runner->verbose && runner->stream_out) {
+        fprintf(runner->stream_out, "%*c %s ", runner->nesting * 3, '-', name);
+    }
+
+    clock_t start, end;
+    long double ns_per_loop;
+
+    /* See if we can run for ten milliseconds. This is close to 100HZ default
+     * used for task switching on some systems. */
+    start = end = clock();
+    for (benchmark.b.n = 1; end - start < CLOCKS_PER_SEC / 100; benchmark.b.n <<= 1) {
+        func(&benchmark.b);
+        end = clock();
+    }
+    ns_per_loop = (long double)(end - start);
+    ns_per_loop *= 1000000000 / CLOCKS_PER_SEC;
+    ns_per_loop /= (long double)benchmark.b.n;
+
+    /* Run the benchmark for about one second. */
+    benchmark.b.n = (uint64_t)((1e9 / ns_per_loop));
+    start = clock();
+    func(&benchmark.b);
+    end = clock();
+    ns_per_loop = (long double)(end - start);
+    ns_per_loop *= 1000000000 / CLOCKS_PER_SEC;
+    ns_per_loop /= (long double)benchmark.b.n;
+    if (runner->verbose && runner->stream_out) {
+        fprintf(runner->stream_out, "%.1Lf ns/loop\n", ns_per_loop);
+    }
+}
+
 static const zt_visitor_vtab zt_test_runner__visitor_vtab = {
     /* .visit_case = */ zt_runner_visitor__visit_case,
     /* .visit_suite = */ zt_runner_visitor__visit_suite,
+    /* .visit_benchmark = */ zt_runner_visitor__visit_benchmark,
 };
 
 static zt_visitor zt_visitor_from_test_runner(zt_test_runner* runner)
