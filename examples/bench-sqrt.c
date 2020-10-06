@@ -5,6 +5,12 @@
 
 #include <zt.h>
 
+static void bench_nothing(zt_b b)
+{
+    for (volatile uint64_t i = b->n; i != 0; --i) {
+    }
+}
+
 static void bench_sqrtf(zt_b b)
 {
     volatile float in = 2.0;
@@ -37,6 +43,7 @@ static void bench_sqrtl(zt_b b)
 
 static void test_suite(zt_visitor v)
 {
+    ZT_VISIT_BENCHMARK(v, bench_nothing);
     ZT_VISIT_BENCHMARK(v, bench_sqrtf);
     ZT_VISIT_BENCHMARK(v, bench_sqrt);
     ZT_VISIT_BENCHMARK(v, bench_sqrtl);
