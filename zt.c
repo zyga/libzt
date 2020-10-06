@@ -264,7 +264,7 @@ typedef struct zt_benchmark_internal {
     zt_benchmark b;
     const char* name;
 } zt_benchmark_internal;
-/* In reality zt_t is a pointer to zt_benchmark_internal. */
+/* In reality zt_b is a pointer to zt_benchmark_internal.b. */
 
 typedef struct zt_visitor_vtab {
     void (*visit_case)(void*, zt_test_case_func, const char* name);
