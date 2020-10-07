@@ -17,6 +17,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Libzt.  If not, see <https://www.gnu.org/licenses/>. */
 
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 199309L
+#endif
+
 #include "zt.h"
 
 #include <ctype.h>
@@ -470,6 +474,14 @@ static void zt_runner_visitor__visit_case(void* id, zt_test_case_func func,
     }
 }
 
+static int ns_delta_below(struct timespec start, struct timespec end, long delta_ns)
+{
+    if (difftime(end.tv_sec, start.tv_sec) >= 1) {
+        return 0;
+    }
+    return end.tv_nsec - start.tv_nsec < delta_ns;
+}
+
 static void zt_runner_visitor__visit_benchmark(void* id, zt_benchmark_func func,
     const char* name)
 {
@@ -488,27 +500,28 @@ static void zt_runner_visitor__visit_benchmark(void* id, zt_benchmark_func func,
         fprintf(runner->stream_out, "%*c %s ", runner->nesting * 3, '-', name);
     }
 
-    clock_t start, end;
+    struct timespec start, end;
     long double ns_per_loop;
 
     /* See if we can run for ten milliseconds. This is close to 100HZ default
      * used for task switching on some systems. */
-    start = end = clock();
-    for (benchmark.b.n = 1; end - start < CLOCKS_PER_SEC / 100; benchmark.b.n <<= 1) {
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+    end = start;
+    for (benchmark.b.n = 1; ns_delta_below(start, end, 10 * 1000 * 1000); benchmark.b.n <<= 1) {
         func(&benchmark.b);
-        end = clock();
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
     }
-    ns_per_loop = (long double)(end - start);
-    ns_per_loop *= 1000000000 / CLOCKS_PER_SEC;
+    ns_per_loop = difftime(end.tv_sec, start.tv_sec) * 1e9;
+    ns_per_loop += (long double)(end.tv_nsec - start.tv_nsec);
     ns_per_loop /= (long double)benchmark.b.n;
 
     /* Run the benchmark for about one second. */
     benchmark.b.n = (uint64_t)((1e9 / ns_per_loop));
-    start = clock();
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
     func(&benchmark.b);
-    end = clock();
-    ns_per_loop = (long double)(end - start);
-    ns_per_loop *= 1000000000 / CLOCKS_PER_SEC;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+    ns_per_loop = difftime(end.tv_sec, start.tv_sec) * 1e9;
+    ns_per_loop += (long double)(end.tv_nsec - start.tv_nsec);
     ns_per_loop /= (long double)benchmark.b.n;
     if (runner->verbose && runner->stream_out) {
         fprintf(runner->stream_out, "%.1Lf ns/loop\n", ns_per_loop);
