@@ -14,7 +14,7 @@ static void bench_nothing(zt_b b)
 static void bench_sqrtf(zt_b b)
 {
     volatile float in = 2.0;
-    volatile float out;
+    volatile float out = 0;
     for (uint64_t i = b->n; i != 0; --i) {
         out = sqrtf(in);
     }
@@ -24,7 +24,7 @@ static void bench_sqrtf(zt_b b)
 static void bench_sqrt(zt_b b)
 {
     volatile double in = 2.0;
-    volatile double out;
+    volatile double out = 0;
     for (uint64_t i = b->n; i != 0; --i) {
         out = sqrt(in);
     }
@@ -34,7 +34,7 @@ static void bench_sqrt(zt_b b)
 static void bench_sqrtl(zt_b b)
 {
     volatile long double in = 2.0;
-    volatile long double out;
+    volatile long double out = 0;
     for (uint64_t i = b->n; i != 0; --i) {
         out = sqrtl(in);
     }
