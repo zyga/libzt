@@ -30,7 +30,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _WIN32
 #include <time.h>
+#else
+#include <windows.h>
+#endif
 
 #if !defined(__GNUC__) && !defined(__clang__)
 #define ZT_UNUSED
@@ -482,6 +486,7 @@ static void zt_runner_visitor__visit_case(void* id, zt_test_case_func func,
     }
 }
 
+#ifndef _WIN32
 static int ns_delta_below(struct timespec start, struct timespec end, long delta_ns)
 {
     if (difftime(end.tv_sec, start.tv_sec) >= 1) {
@@ -489,6 +494,7 @@ static int ns_delta_below(struct timespec start, struct timespec end, long delta
     }
     return end.tv_nsec - start.tv_nsec < delta_ns;
 }
+#endif
 
 static void zt_runner_visitor__visit_benchmark(void* id, zt_benchmark_func func,
     const char* name)
@@ -508,11 +514,11 @@ static void zt_runner_visitor__visit_benchmark(void* id, zt_benchmark_func func,
         fprintf(runner->stream_out, "%*c %s ", runner->nesting * 3, '-', name);
     }
 
-    struct timespec start, end;
-    long double ns_per_loop;
-
+    long double ns_per_loop;    
+#ifndef _WIN32
     /* See if we can run for ten milliseconds. This is close to 100HZ default
      * used for task switching on some systems. */
+    struct timespec start, end;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
     end = start;
     for (benchmark.b.n = 1; ns_delta_below(start, end, 10 * 1000 * 1000); benchmark.b.n <<= 1) {
@@ -522,7 +528,6 @@ static void zt_runner_visitor__visit_benchmark(void* id, zt_benchmark_func func,
     ns_per_loop = difftime(end.tv_sec, start.tv_sec) * 1e9;
     ns_per_loop += (long double)(end.tv_nsec - start.tv_nsec);
     ns_per_loop /= (long double)benchmark.b.n;
-
     /* Run the benchmark for about one second. */
     benchmark.b.n = (uint64_t)((1e9 / ns_per_loop));
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
@@ -531,6 +536,28 @@ static void zt_runner_visitor__visit_benchmark(void* id, zt_benchmark_func func,
     ns_per_loop = difftime(end.tv_sec, start.tv_sec) * 1e9;
     ns_per_loop += (long double)(end.tv_nsec - start.tv_nsec);
     ns_per_loop /= (long double)benchmark.b.n;
+#else
+    LARGE_INTEGER start, end, freq;
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&start);
+    end = start;
+    for (benchmark.b.n = 1; end.QuadPart - start.QuadPart < freq.QuadPart / 100; benchmark.b.n <<= 1) {
+        func(&benchmark.b);
+        QueryPerformanceCounter(&end);
+    }
+    ns_per_loop = (end.QuadPart - start.QuadPart) * 1e9/freq.QuadPart;
+    ns_per_loop /= (long double)benchmark.b.n;
+    /* Run the benchmark for about one second. */
+    benchmark.b.n = (uint64_t)((1e9 / ns_per_loop));
+    QueryPerformanceCounter(&start);
+    func(&benchmark.b);
+    QueryPerformanceCounter(&end);
+    ns_per_loop = (end.QuadPart - start.QuadPart) * 1e9 / freq.QuadPart;
+    ns_per_loop /= (long double)benchmark.b.n;
+    if (runner->verbose && runner->stream_out) {
+        fprintf(runner->stream_out, "%.1Lf ns/loop ", ns_per_loop);
+    }
+#endif
     if (runner->verbose && runner->stream_out) {
         fprintf(runner->stream_out, "%.1Lf ns/loop\n", ns_per_loop);
     }
