@@ -101,7 +101,15 @@ static void zt_promote_value(zt_value* v)
         v->as.uintmax = v->as.unsigned_integer;
         v->kind = ZT_UINTMAX;
         break;
+    case ZT_NOTHING:
+    case ZT_BOOLEAN:
+    case ZT_RUNE:
+    case ZT_STRING:
+    case ZT_POINTER:
+    case ZT_INTMAX:
+    case ZT_UINTMAX:
     default:
+        /* Nothing do to, all kinds listed to silence Microsoft compiler. */
         break;
     }
 }
@@ -760,6 +768,11 @@ static bool zt_verify_boolean_relation(zt_test* test, zt_value left, zt_value re
             return true;
         }
         break;
+    case ZT_REL_INVALID:
+    case ZT_REL_LE:
+    case ZT_REL_GE:
+    case ZT_REL_LT:
+    case ZT_REL_GT:
     default:
         zt_logf(test->stream, test->location, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), rel.as.string, zt_source_of(right));
@@ -1275,6 +1288,11 @@ static bool zt_verify_pointer_relation(zt_test* test, zt_value left, zt_value re
             return true;
         }
         break;
+    case ZT_REL_INVALID:
+    case ZT_REL_LE:
+    case ZT_REL_GE:
+    case ZT_REL_LT:
+    case ZT_REL_GT:
     default:
         zt_logf(test->stream, test->location, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right));
