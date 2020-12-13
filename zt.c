@@ -514,7 +514,7 @@ static void zt_runner_visitor__visit_benchmark(void* id, zt_benchmark_func func,
         fprintf(runner->stream_out, "%*c %s ", runner->nesting * 3, '-', name);
     }
 
-    long double ns_per_loop;    
+    long double ns_per_loop;
 #ifndef _WIN32
     /* See if we can run for ten milliseconds. This is close to 100HZ default
      * used for task switching on some systems. */
