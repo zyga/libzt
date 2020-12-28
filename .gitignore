@@ -18,6 +18,7 @@ examples/test-root-user.exe
 
 # Release archives
 libzt_*.tar.gz
+libzt_*.tar.gz.asc
 libzt_*.zip
 
 # The test program
@@ -53,8 +54,13 @@ libzt-test.exe
 pvs-report/
 
 # Configured in-tree build
+configure
 GNUmakefile.configure.mk
 .version-from-git
+
+# Build system snapshot
+z.mk
+zmk
 
 # Manual pages
 man/*.[123456789]

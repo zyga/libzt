@@ -2249,6 +2249,143 @@ static void test_stdout_stderr(void)
     assert(zt_stderr() == stderr);
 }
 
+static bool selftest_defer0_called;
+static void selftest_defer0_func(void)
+{
+    selftest_defer0_called = true;
+}
+
+static bool selftest_defer1_called;
+static zt_value selftest_defer1_arg1;
+static void selftest_defer1_func(zt_value arg1)
+{
+    selftest_defer1_called = true;
+    selftest_defer1_arg1 = arg1;
+}
+
+static void selftest_defer0(zt_t t)
+{
+    zt_defer(t, ZT_CLOSURE0(selftest_defer0_func));
+}
+
+static void selftest_defer1(zt_t t)
+{
+    zt_value v = zt_pack_integer(42, "42");
+    zt_defer(t, ZT_CLOSURE1(selftest_defer1_func, v));
+}
+
+static void selftest_defer_and_resource_suite(zt_visitor v)
+{
+    zt_closure closures[1];
+    zt_visit_resource(v, ZT_RESOURCE_DEFER_CLOSURES, 1, closures);
+    ZT_VISIT_TEST_CASE(v, selftest_defer0);
+    ZT_VISIT_TEST_CASE(v, selftest_defer1);
+}
+
+static void test_defer_normal(void)
+{
+    selftest_defer0_called = false;
+    char* test_argv[] = { "a.out" };
+    int exit_code;
+
+    zt_mock_stdout = selftest_temporary_file();
+    zt_mock_stderr = selftest_temporary_file();
+
+    selftest_defer0_called = false;
+    selftest_defer1_called = false;
+    selftest_defer1_arg1 = zt_pack_nothing();
+    exit_code = zt_main(1, test_argv, NULL, selftest_defer_and_resource_suite);
+    assert(exit_code == EXIT_SUCCESS);
+    selftest_stream_eq(zt_mock_stdout, "");
+    selftest_stream_eq(zt_mock_stderr, "");
+    fclose(zt_mock_stdout);
+    fclose(zt_mock_stderr);
+    zt_mock_stdout = NULL;
+    zt_mock_stderr = NULL;
+    assert(selftest_defer0_called == true);
+    assert(selftest_defer1_called == true);
+    assert(selftest_defer1_arg1.kind == ZT_INTMAX);
+    assert(selftest_defer1_arg1.as.intmax == 42);
+}
+
+static int selftest_defer_order_shared_counter;
+static int selftest_defer_order_a_counter;
+static void selftest_defer_order_a_func(void)
+{
+    selftest_defer_order_a_counter = ++selftest_defer_order_shared_counter;
+}
+
+static int selftest_defer_order_b_counter;
+static void selftest_defer_order_b_func(void)
+{
+    selftest_defer_order_b_counter = ++selftest_defer_order_shared_counter;
+}
+
+static void selftest_defer_order(zt_t t)
+{
+    zt_defer(t, ZT_CLOSURE0(selftest_defer_order_a_func));
+    zt_defer(t, ZT_CLOSURE0(selftest_defer_order_b_func));
+}
+
+static void selftest_defer_order_suite(zt_visitor v)
+{
+    zt_closure closures[2];
+    zt_visit_resource(v, ZT_RESOURCE_DEFER_CLOSURES, 2, closures);
+    ZT_VISIT_TEST_CASE(v, selftest_defer_order);
+}
+
+static void test_defer_order(void)
+{
+    char* test_argv[] = { "a.out" };
+    int exit_code;
+
+    zt_mock_stdout = selftest_temporary_file();
+    zt_mock_stderr = selftest_temporary_file();
+
+    selftest_defer_order_shared_counter = 0;
+    selftest_defer_order_a_counter = 0;
+    selftest_defer_order_b_counter = 0;
+    exit_code = zt_main(1, test_argv, NULL, selftest_defer_order_suite);
+    assert(exit_code == EXIT_SUCCESS);
+    selftest_stream_eq(zt_mock_stdout, "");
+    selftest_stream_eq(zt_mock_stderr, "");
+    fclose(zt_mock_stdout);
+    fclose(zt_mock_stderr);
+    zt_mock_stdout = NULL;
+    zt_mock_stderr = NULL;
+    assert(selftest_defer_order_a_counter == 2);
+    assert(selftest_defer_order_b_counter == 1);
+}
+
+static void selftest_defer_no_resource_suite(zt_visitor v)
+{
+    ZT_VISIT_TEST_CASE(v, selftest_defer0);
+}
+
+static void test_defer_abnormal(void)
+{
+    selftest_defer0_called = false;
+    char* test_argv[] = { "a.out" };
+    int exit_code;
+
+    zt_mock_stdout = selftest_temporary_file();
+    zt_mock_stderr = selftest_temporary_file();
+
+    selftest_defer0_called = false;
+    exit_code = zt_main(1, test_argv, NULL, selftest_defer_no_resource_suite);
+    assert(exit_code == EXIT_SUCCESS);
+    selftest_stream_eq(zt_mock_stdout, "");
+    selftest_stream_eq_at(
+        zt_mock_stderr, __FILE__, __LINE__,
+        "%s:%d: insufficient defer slots, provide more than 0\n",
+        __FILE__, __LINE__ - 113);
+    fclose(zt_mock_stdout);
+    fclose(zt_mock_stderr);
+    zt_mock_stdout = NULL;
+    zt_mock_stderr = NULL;
+    assert(selftest_defer0_called == true);
+}
+
 int main(ZT_UNUSED int argc, ZT_UNUSED char** argv, ZT_UNUSED char** envp)
 {
     (void)argc;
@@ -2342,6 +2479,10 @@ int main(ZT_UNUSED int argc, ZT_UNUSED char** argv, ZT_UNUSED char** envp)
     test_main_verbosely_running_mixed_tests();
 
     test_stdout_stderr();
+
+    test_defer_normal();
+    test_defer_abnormal();
+    test_defer_order();
 
     printf("libzt self-test successful\n");
     return 0;

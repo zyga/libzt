@@ -247,6 +247,14 @@ typedef enum zt_outcome {
     ZT_FAILED
 } zt_outcome;
 
+/** zt_resources describe all resources available to a test */
+typedef struct zt_resources {
+    FILE* debug_stream;
+    zt_closure* defer_closures;
+    size_t defer_cap;
+    size_t defer_len;
+} zt_resources;
+
 typedef struct zt_test {
 #if defined(_WIN32) || defined(__WATCOMC__)
     jmp_buf jump_buffer;
@@ -257,11 +265,13 @@ typedef struct zt_test {
     FILE* stream;
     zt_location location; /** location of the last verified claim. */
     zt_outcome outcome;
+    zt_resources* resources;
 } zt_test;
 
 typedef struct zt_visitor_vtab {
     void (*visit_case)(void*, zt_test_case_func, const char* name);
     void (*visit_suite)(void*, zt_test_suite_func, const char* name);
+    void (*visit_resource)(void*, zt_resource_kind, size_t, void*);
 } zt_visitor_vtab;
 
 typedef struct zt_test_lister {
@@ -276,6 +286,7 @@ typedef struct zt_test_runner {
     int num_passed;
     int num_failed;
     bool verbose;
+    zt_resources resources;
 } zt_test_runner;
 
 /** zt_verify0_func is a type of verification function with no arguments. */
@@ -337,6 +348,11 @@ void zt_visit_test_case(zt_visitor v, zt_test_case_func func,
     v.vtab->visit_case(v.id, func, name);
 }
 
+void zt_visit_resource(zt_visitor v, zt_resource_kind kind, size_t count, void* data)
+{
+    v.vtab->visit_resource(v.id, kind, count, data);
+}
+
 /* Lister visitor */
 
 static zt_visitor zt_visitor_from_test_lister(zt_test_lister* lister);
@@ -360,9 +376,28 @@ static void zt_test_lister__visit_case(void* id, ZT_UNUSED zt_test_case_func fun
     fprintf(lister->stream, "%*c %s\n", lister->nesting * 3, '-', name);
 }
 
+static void zt_test_lister__visit_resource(void* id, zt_resource_kind kind, size_t count, ZT_UNUSED void* data)
+{
+    zt_test_lister* lister = (zt_test_lister*)id;
+    const char* res_name;
+    switch (kind) {
+    case ZT_RESOURCE_DEBUG_STREAM:
+        res_name = "debug stream";
+        break;
+    case ZT_RESOURCE_DEFER_CLOSURES:
+        res_name = "defer closures";
+        break;
+    default:
+        res_name = "???";
+        break;
+    }
+    fprintf(lister->stream, "%*c %s x %zd\n", lister->nesting * 3, 'R', res_name, count);
+}
+
 static const zt_visitor_vtab zt_test_lister__visitor_vtab = {
     /* .visit_case = */ zt_test_lister__visit_case,
     /* .visit_suite = */ zt_test_lister__visit_suite,
+    /* .visit_resource = */ zt_test_lister__visit_resource,
 };
 
 static zt_visitor zt_visitor_from_test_lister(zt_test_lister* lister)
@@ -385,6 +420,62 @@ static void zt_list_tests_from(FILE* stream, zt_test_suite_func tsuite)
 
 /* Runner visitor */
 
+static void zt_nonlocal_exit(zt_test* test, int code)
+{
+#ifndef _WIN32
+    siglongjmp(test->jump_buffer, code);
+#else
+    longjmp(test->jump_buffer, code);
+#endif
+    /* TODO: in C++ mode throw an exception. */
+}
+
+static void zt_invoke_closure(zt_t t, zt_closure* closure)
+{
+    switch (closure->nargs) {
+    case 0:
+        closure->func.args0();
+        break;
+    case 1:
+        closure->func.args1(closure->args[0]);
+        break;
+    default:
+        zt_logf(t->stream, closure->location, "unsupported number of arguments: %i", closure->nargs);
+        t->outcome = ZT_FAILED;
+        break;
+    }
+}
+
+static void zt_null_test_error(void)
+{
+    fprintf(stderr, "usage error, do not pass NULL test pointers");
+}
+
+static void zt_null_resources_error(void)
+{
+    fprintf(stderr, "internal error, cannot defer, test resources unavailable");
+}
+
+void zt_defer(zt_t test, zt_closure closure)
+{
+    zt_resources* res;
+    if (test == NULL) {
+        zt_null_test_error();
+        return;
+    }
+    res = test->resources;
+    if (res == NULL) {
+        zt_null_resources_error();
+        return;
+    }
+    if (res->defer_len == res->defer_cap) {
+        zt_invoke_closure(test, &closure);
+        zt_logf(test->stream, closure.location, "insufficient defer slots, provide more than %zd", res->defer_cap);
+        zt_nonlocal_exit(test, 1);
+    }
+    res->defer_closures[res->defer_len++] = closure;
+}
+
 static zt_visitor zt_visitor_from_test_runner(zt_test_runner* runner);
 
 static void zt_runner_visitor__visit_suite(void* id, zt_test_suite_func func,
@@ -400,15 +491,30 @@ static void zt_runner_visitor__visit_suite(void* id, zt_test_suite_func func,
     runner->nesting--;
 }
 
-static void zt_runner_visitor__visit_case(void* id, zt_test_case_func func,
+static void zt_provide_resources_to_test(zt_test_runner* runner, zt_test* test)
+{
+    test->stream = runner->stream_err;
+    test->resources = &runner->resources;
+    runner->resources.defer_len = 0;
+}
+
+static void zt_run_defer_funcs(zt_t t, zt_test_runner* runner)
+{
+    for (size_t i = runner->resources.defer_len; i > 0; --i) {
+        zt_invoke_closure(t, &runner->resources.defer_closures[i - 1]);
+    }
+    runner->resources.defer_len = 0;
+}
+
+static void zt_runner_visitor__visit_case(void* id, zt_test_case_func test_func,
     const char* name)
 {
     zt_test_runner* runner = (zt_test_runner*)id;
     zt_test test;
     int jump_result;
     memset(&test, 0, sizeof test);
-    test.stream = runner->stream_err;
     test.outcome = ZT_PENDING;
+    zt_provide_resources_to_test(runner, &test);
 #if defined(_WIN32) || defined(__WATCOMC__)
     jump_result = setjmp(test.jump_buffer);
 #else
@@ -418,8 +524,10 @@ static void zt_runner_visitor__visit_case(void* id, zt_test_case_func func,
         if (runner->verbose && runner->stream_out) {
             fprintf(runner->stream_out, "%*c %s", runner->nesting * 3, '-', name);
         }
-        func(&test);
+        test_func(&test);
     }
+    zt_run_defer_funcs(&test, runner);
+
     switch (test.outcome) {
     case ZT_PENDING:
     case ZT_PASSED:
@@ -447,9 +555,32 @@ static void zt_runner_visitor__visit_case(void* id, zt_test_case_func func,
     }
 }
 
+static void zt_runner_visitor__visit_resource(void* id, zt_resource_kind kind, size_t count, void* data)
+{
+    zt_test_runner* runner = (zt_test_runner*)id;
+    switch (kind) {
+    case ZT_RESOURCE_DEBUG_STREAM:
+        runner->resources.debug_stream = data;
+        break;
+    case ZT_RESOURCE_DEFER_CLOSURES:
+        runner->resources.defer_closures = data;
+        runner->resources.defer_cap = count;
+        runner->resources.defer_len = 0;
+        break;
+    default:
+        if (runner->stream_err) {
+            fprintf(runner->stream_err, "%*c - unexpected resource code %d\n",
+                runner->nesting * 3, '-', kind);
+        }
+        runner->num_failed++;
+        break;
+    }
+}
+
 static const zt_visitor_vtab zt_test_runner__visitor_vtab = {
     /* .visit_case = */ zt_runner_visitor__visit_case,
     /* .visit_suite = */ zt_runner_visitor__visit_suite,
+    /* .visit_resource = */ zt_runner_visitor__visit_resource,
 };
 
 static zt_visitor zt_visitor_from_test_runner(zt_test_runner* runner)
@@ -542,6 +673,7 @@ void zt_assert(zt_test* test, zt_claim claim)
         siglongjmp(test->jump_buffer, 1);
 #endif
         /* TODO: in C++ mode throw an exception. */
+        zt_nonlocal_exit(test, 1);
     }
 }
 

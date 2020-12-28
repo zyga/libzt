@@ -6,11 +6,13 @@ _zt_cmp_int
 _zt_cmp_ptr
 _zt_cmp_rune
 _zt_cmp_uint
+_zt_defer
 _zt_false
 _zt_main
 _zt_not_null
 _zt_null
 _zt_pack_rune
 _zt_true
+_zt_visit_resource
 _zt_visit_test_case
 _zt_visit_test_suite
