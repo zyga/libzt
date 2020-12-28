@@ -248,10 +248,10 @@ typedef enum zt_outcome {
 } zt_outcome;
 
 typedef struct zt_test {
-#if defined(_WIN32) || defined(__WATCOMC__)
-    jmp_buf jump_buffer;
-#else
+#if defined(_POSIX_C_SOURCE)
     sigjmp_buf jump_buffer;
+#else
+    jmp_buf jump_buffer;
 #endif
     const char* name;
     FILE* stream;
@@ -409,10 +409,10 @@ static void zt_runner_visitor__visit_case(void* id, zt_test_case_func func,
     memset(&test, 0, sizeof test);
     test.stream = runner->stream_err;
     test.outcome = ZT_PENDING;
-#if defined(_WIN32) || defined(__WATCOMC__)
-    jump_result = setjmp(test.jump_buffer);
-#else
+#if defined(_POSIX_C_SOURCE)
     jump_result = sigsetjmp(test.jump_buffer, 1);
+#else
+    jump_result = setjmp(test.jump_buffer);
 #endif
     if (jump_result == 0) {
         if (runner->verbose && runner->stream_out) {
@@ -536,10 +536,10 @@ void zt_assert(zt_test* test, zt_claim claim)
 {
     if (!zt_verify_claim(test, &claim)) {
         test->outcome = ZT_FAILED;
-#if defined(_WIN32) || defined(__WATCOMC__)
-        longjmp(test->jump_buffer, 1);
-#else
+#if defined(_POSIX_C_SOURCE)
         siglongjmp(test->jump_buffer, 1);
+#else
+        longjmp(test->jump_buffer, 1);
 #endif
         /* TODO: in C++ mode throw an exception. */
     }
