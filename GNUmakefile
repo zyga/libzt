@@ -18,7 +18,7 @@ NAME = libzt
 VERSION = 0.3.1
 
 # Include optional generated makefile from the configuration system.
--include GNUmakefile.configure.mk
+-include config.libzt.mk
 ZMK.SrcDir ?= .
 
 # Use system zmk but fall back to bundled zmk.
