@@ -52,30 +52,6 @@ jobs:
     - name: Uninstall zmk snapshot
       if: ${{ steps.zmk.conclusion == 'success' }}
       run: sudo make -C zmk-snapshot uninstall
-  linux-arm:
-    runs-on: [self-hosted, linux]
-    needs: linux
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    - uses: actions/checkout@v2
-      with:
-        repository: zyga/zmk
-        path: zmk-snapshot
-        fetch-depth: 0
-    - name: Install zmk snapshot
-      id: zmk
-      run: |
-        make -C zmk-snapshot
-        sudo make -C zmk-snapshot install
-    - name: Bootstrap the configuration system
-      run: make configure
-    - name: Run distcheck
-      run: make distcheck -j2
-    - name: Uninstall zmk snapshot
-      if: ${{ steps.zmk.conclusion == 'success' }}
-      run: sudo make -C zmk-snapshot uninstall
   windows:
     runs-on: windows-latest
     needs: linux
