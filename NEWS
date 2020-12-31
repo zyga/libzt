@@ -1,3 +1,17 @@
+Changes in the next release:
+
+ * The test suite no longer fails on Sparc 64
+
+   The automatic promotion process from ZT_INTEGER to ZT_INTMAX, and from
+   ZT_UNSIGED to ZT_UINTMAX, was correct but the test measuring that was
+   flawed, as it relied on reading the shorter words instead. On some
+   architectures, notably Sparc 64, this results in a read of the word
+   zeroed by the write to the wider variant.
+
+ * The build system has been updated to ZMK 0.4.2.
+
+ * The CI system now uses "make distcheck" internally.
+
 Changes in 0.3.1:
 
  * The build system has been updated to ZMK 0.3.6. This should fix
