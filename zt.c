@@ -87,18 +87,20 @@ zt_value zt_pack_rune(int value, const char* source)
 
 static void zt_promote_value(zt_value* v)
 {
-    switch (v->kind) {
+    zt_value tmp = *v;
+    switch (tmp.kind) {
     case ZT_INTEGER:
-        v->as.intmax = v->as.integer;
-        v->kind = ZT_INTMAX;
+        tmp.as.intmax = v->as.integer;
+        tmp.kind = ZT_INTMAX;
         break;
     case ZT_UNSIGNED:
-        v->as.uintmax = v->as.unsigned_integer;
-        v->kind = ZT_UINTMAX;
+        tmp.as.uintmax = v->as.unsigned_integer;
+        tmp.kind = ZT_UINTMAX;
         break;
     default:
-        break;
+        return;
     }
+    *v = tmp;
 }
 
 /** zt_binary_relation describes one of typical binary relations. */
