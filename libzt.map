@@ -26,3 +26,8 @@ VERS_0_3 {
 	global:
 		zt_cmp_ptr;
 } VERS_0_2;
+
+VERS_0_4 {
+	global:
+		zt_visit_benchmark;
+} VERS_0_3;

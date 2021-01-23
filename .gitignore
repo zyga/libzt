@@ -15,6 +15,8 @@ examples/demo
 examples/demo.exe
 examples/test-root-user
 examples/test-root-user.exe
+examples/bench-sqrt
+examples/bench-sqrt.exe
 
 # Release archives
 libzt_*.tar.gz

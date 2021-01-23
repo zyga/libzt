@@ -17,6 +17,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Libzt.  If not, see <https://www.gnu.org/licenses/>. */
 
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 199309L
+#endif
+
 #include "zt.h"
 
 #include <ctype.h>
@@ -26,6 +30,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _WIN32
+#include <time.h>
+#else
+#include <windows.h>
+#endif
 
 #if !defined(__GNUC__) && !defined(__clang__)
 #define ZT_UNUSED
@@ -96,7 +105,15 @@ static void zt_promote_value(zt_value* v)
         v->as.uintmax = v->as.unsigned_integer;
         v->kind = ZT_UINTMAX;
         break;
+    case ZT_NOTHING:
+    case ZT_BOOLEAN:
+    case ZT_RUNE:
+    case ZT_STRING:
+    case ZT_POINTER:
+    case ZT_INTMAX:
+    case ZT_UINTMAX:
     default:
+        /* Nothing do to, all kinds listed to silence Microsoft compiler. */
         break;
     }
 }
@@ -259,9 +276,16 @@ typedef struct zt_test {
     zt_outcome outcome;
 } zt_test;
 
+typedef struct zt_benchmark_internal {
+    zt_benchmark b;
+    const char* name;
+} zt_benchmark_internal;
+/* In reality zt_b is a pointer to zt_benchmark_internal.b. */
+
 typedef struct zt_visitor_vtab {
     void (*visit_case)(void*, zt_test_case_func, const char* name);
     void (*visit_suite)(void*, zt_test_suite_func, const char* name);
+    void (*visit_benchmark)(void*, zt_benchmark_func, const char* name);
 } zt_visitor_vtab;
 
 typedef struct zt_test_lister {
@@ -337,6 +361,12 @@ void zt_visit_test_case(zt_visitor v, zt_test_case_func func,
     v.vtab->visit_case(v.id, func, name);
 }
 
+void zt_visit_benchmark(zt_visitor v, zt_benchmark_func func,
+    const char* name)
+{
+    v.vtab->visit_benchmark(v.id, func, name);
+}
+
 /* Lister visitor */
 
 static zt_visitor zt_visitor_from_test_lister(zt_test_lister* lister);
@@ -360,9 +390,18 @@ static void zt_test_lister__visit_case(void* id, ZT_UNUSED zt_test_case_func fun
     fprintf(lister->stream, "%*c %s\n", lister->nesting * 3, '-', name);
 }
 
+static void zt_test_lister__visit_benchmark(void* id, ZT_UNUSED zt_benchmark_func func,
+    const char* name)
+{
+    zt_test_lister* lister = (zt_test_lister*)id;
+    (void)func;
+    fprintf(lister->stream, "%*c %s (benchmark)\n", lister->nesting * 3, '-', name);
+}
+
 static const zt_visitor_vtab zt_test_lister__visitor_vtab = {
     /* .visit_case = */ zt_test_lister__visit_case,
     /* .visit_suite = */ zt_test_lister__visit_suite,
+    /* .visit_benchmark = */ zt_test_lister__visit_benchmark,
 };
 
 static zt_visitor zt_visitor_from_test_lister(zt_test_lister* lister)
@@ -447,9 +486,87 @@ static void zt_runner_visitor__visit_case(void* id, zt_test_case_func func,
     }
 }
 
+#ifndef _WIN32
+static int ns_delta_below(struct timespec start, struct timespec end, long delta_ns)
+{
+    if (difftime(end.tv_sec, start.tv_sec) >= 1) {
+        return 0;
+    }
+    return end.tv_nsec - start.tv_nsec < delta_ns;
+}
+#endif
+
+static void zt_runner_visitor__visit_benchmark(void* id, zt_benchmark_func func,
+    const char* name)
+{
+    zt_test_runner* runner = (zt_test_runner*)id;
+    zt_benchmark_internal benchmark;
+
+    memset(&benchmark, 0, sizeof benchmark);
+
+    /* Run the benchmark function at least once. */
+    if (!runner->verbose || runner->stream_out == NULL) {
+        benchmark.b.n = 1;
+        func(&benchmark.b);
+        return;
+    }
+    if (runner->verbose && runner->stream_out) {
+        fprintf(runner->stream_out, "%*c %s ", runner->nesting * 3, '-', name);
+    }
+
+    long double ns_per_loop;
+#ifndef _WIN32
+    /* See if we can run for ten milliseconds. This is close to 100HZ default
+     * used for task switching on some systems. */
+    struct timespec start, end;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+    end = start;
+    for (benchmark.b.n = 1; ns_delta_below(start, end, 10 * 1000 * 1000); benchmark.b.n <<= 1) {
+        func(&benchmark.b);
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+    }
+    ns_per_loop = difftime(end.tv_sec, start.tv_sec) * 1e9;
+    ns_per_loop += (long double)(end.tv_nsec - start.tv_nsec);
+    ns_per_loop /= (long double)benchmark.b.n;
+    /* Run the benchmark for about one second. */
+    benchmark.b.n = (uint64_t)((1e9 / ns_per_loop));
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+    func(&benchmark.b);
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end);
+    ns_per_loop = difftime(end.tv_sec, start.tv_sec) * 1e9;
+    ns_per_loop += (long double)(end.tv_nsec - start.tv_nsec);
+    ns_per_loop /= (long double)benchmark.b.n;
+#else
+    LARGE_INTEGER start, end, freq;
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&start);
+    end = start;
+    for (benchmark.b.n = 1; end.QuadPart - start.QuadPart < freq.QuadPart / 100; benchmark.b.n <<= 1) {
+        func(&benchmark.b);
+        QueryPerformanceCounter(&end);
+    }
+    ns_per_loop = (end.QuadPart - start.QuadPart) * 1e9/freq.QuadPart;
+    ns_per_loop /= (long double)benchmark.b.n;
+    /* Run the benchmark for about one second. */
+    benchmark.b.n = (uint64_t)((1e9 / ns_per_loop));
+    QueryPerformanceCounter(&start);
+    func(&benchmark.b);
+    QueryPerformanceCounter(&end);
+    ns_per_loop = (end.QuadPart - start.QuadPart) * 1e9 / freq.QuadPart;
+    ns_per_loop /= (long double)benchmark.b.n;
+    if (runner->verbose && runner->stream_out) {
+        fprintf(runner->stream_out, "%.1Lf ns/loop ", ns_per_loop);
+    }
+#endif
+    if (runner->verbose && runner->stream_out) {
+        fprintf(runner->stream_out, "%.1Lf ns/loop\n", ns_per_loop);
+    }
+}
+
 static const zt_visitor_vtab zt_test_runner__visitor_vtab = {
     /* .visit_case = */ zt_runner_visitor__visit_case,
     /* .visit_suite = */ zt_runner_visitor__visit_suite,
+    /* .visit_benchmark = */ zt_runner_visitor__visit_benchmark,
 };
 
 static zt_visitor zt_visitor_from_test_runner(zt_test_runner* runner)
@@ -678,6 +795,11 @@ static bool zt_verify_boolean_relation(zt_test* test, zt_value left, zt_value re
             return true;
         }
         break;
+    case ZT_REL_INVALID:
+    case ZT_REL_LE:
+    case ZT_REL_GE:
+    case ZT_REL_LT:
+    case ZT_REL_GT:
     default:
         zt_logf(test->stream, test->location, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), rel.as.string, zt_source_of(right));
@@ -1193,6 +1315,11 @@ static bool zt_verify_pointer_relation(zt_test* test, zt_value left, zt_value re
             return true;
         }
         break;
+    case ZT_REL_INVALID:
+    case ZT_REL_LE:
+    case ZT_REL_GE:
+    case ZT_REL_LT:
+    case ZT_REL_GT:
     default:
         zt_logf(test->stream, test->location, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right));

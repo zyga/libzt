@@ -1,4 +1,4 @@
-!if [set CL=/nologo /Wall /wd4820 /wd4100 /wd4996 /wd4710 /wd5045]
+!if [set CL=/O2 /nologo /Wall /wd4820 /wd4100 /wd4996 /wd4710 /wd5045]
 !endif
 
 all: libzt-test.exe zt.dll
