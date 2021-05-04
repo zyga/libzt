@@ -60,7 +60,7 @@ is implemented using
 .Fn siglongjump .
 One should not depend on neither C++ destructors nor the GCC cleanup function extension for correct resource management.
 .Sh RETURN VALUES
-Neither function return anything. Failures are remembered inside the opaque
+Neither function returns anything. Failures are remembered inside the opaque
 .Nm zt_test
 structure passed by pointer (aka
 .Nm zt_t )
