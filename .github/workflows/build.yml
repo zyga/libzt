@@ -14,20 +14,21 @@ jobs:
     - uses: actions/checkout@v2
       with:
         repository: zyga/zmk
-        path: zmk-snapshot
+        path: zmk-release
+        ref: v0.5
         fetch-depth: 0
-    - name: Install zmk snapshot
+    - name: Install zmk release
       id: zmk
       run: |
-        make -C zmk-snapshot
-        sudo make -C zmk-snapshot install
+        make -C zmk-release
+        sudo make -C zmk-release install
     - name: Bootstrap the configuration system
       run: make configure
     - name: Run distcheck
       run: make distcheck -j2
-    - name: Uninstall zmk snapshot
+    - name: Uninstall zmk release
       if: ${{ steps.zmk.conclusion == 'success' }}
-      run: sudo make -C zmk-snapshot uninstall
+      run: sudo make -C zmk-release uninstall
   macos:
     runs-on: macos-latest
     needs: linux
@@ -38,20 +39,21 @@ jobs:
     - uses: actions/checkout@v2
       with:
         repository: zyga/zmk
-        path: zmk-snapshot
+        path: zmk-release
+        ref: v0.5
         fetch-depth: 0
-    - name: Install zmk snapshot
+    - name: Install zmk release
       id: zmk
       run: |
-        make -C zmk-snapshot
-        sudo make -C zmk-snapshot install
+        make -C zmk-release
+        sudo make -C zmk-release install
     - name: Bootstrap the configuration system
       run: make configure
     - name: Run distcheck
       run: make distcheck -j2
-    - name: Uninstall zmk snapshot
+    - name: Uninstall zmk release
       if: ${{ steps.zmk.conclusion == 'success' }}
-      run: sudo make -C zmk-snapshot uninstall
+      run: sudo make -C zmk-release uninstall
   windows:
     runs-on: windows-latest
     needs: linux
