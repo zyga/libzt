@@ -1,3 +1,9 @@
+# Disable some pointless warnings:
+# C4820 - padding inside a structure
+# C4100 - function with unused argument
+# C4996 - use of deprecated symbol
+# C4710 - function was not inlined
+# C5045 - side-channel mitigations inserted by the compiler
 !if [set CL=/nologo /Wall /wd4820 /wd4100 /wd4996 /wd4710 /wd5045]
 !endif
 
