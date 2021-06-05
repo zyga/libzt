@@ -96,6 +96,14 @@ static void zt_promote_value(zt_value* v)
         v->as.uintmax = v->as.unsigned_integer;
         v->kind = ZT_UINTMAX;
         break;
+    /* List all possible cases to silence Visual Studio warning C4061. */
+    case ZT_BOOLEAN:
+    case ZT_INTMAX:
+    case ZT_NOTHING:
+    case ZT_POINTER:
+    case ZT_RUNE:
+    case ZT_STRING:
+    case ZT_UINTMAX:
     default:
         break;
     }
@@ -678,6 +686,12 @@ static bool zt_verify_boolean_relation(zt_test* test, zt_value left, zt_value re
             return true;
         }
         break;
+    /* List all possible cases to silence Visual Studio warning C4061. */
+    case ZT_REL_GE:
+    case ZT_REL_GT:
+    case ZT_REL_INVALID:
+    case ZT_REL_LE:
+    case ZT_REL_LT:
     default:
         zt_logf(test->stream, test->location, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), rel.as.string, zt_source_of(right));
@@ -1193,6 +1207,12 @@ static bool zt_verify_pointer_relation(zt_test* test, zt_value left, zt_value re
             return true;
         }
         break;
+    /* List all possible cases to silence Visual Studio warning C4061. */
+    case ZT_REL_GE:
+    case ZT_REL_GT:
+    case ZT_REL_INVALID:
+    case ZT_REL_LE:
+    case ZT_REL_LT:
     default:
         zt_logf(test->stream, test->location, "assertion %s %s %s uses unsupported relation",
             zt_source_of(left), zt_source_of(rel), zt_source_of(right));
