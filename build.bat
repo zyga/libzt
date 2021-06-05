@@ -1,1 +1,1 @@
-nmake /f Makefile.nmake.mk
+nmake /nologo /f Makefile.nmake.mk

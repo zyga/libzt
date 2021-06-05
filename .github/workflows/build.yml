@@ -61,6 +61,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ilammy/msvc-dev-cmd@v1
       - name: Build with MSVC
-        run: nmake /f Makefile.nmake.mk all
+        run: nmake /nologo /f Makefile.nmake.mk all
       - name: Run the test suite
-        run: nmake /f Makefile.nmake.mk check
+        run: nmake /nologo /f Makefile.nmake.mk check
