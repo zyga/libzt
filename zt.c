@@ -554,9 +554,6 @@ static void zt_runner_visitor__visit_benchmark(void* id, zt_benchmark_func func,
     QueryPerformanceCounter(&end);
     ns_per_loop = (end.QuadPart - start.QuadPart) * 1e9 / freq.QuadPart;
     ns_per_loop /= (long double)benchmark.b.n;
-    if (runner->verbose && runner->stream_out) {
-        fprintf(runner->stream_out, "%.1Lf ns/loop ", ns_per_loop);
-    }
 #endif
     if (runner->verbose && runner->stream_out) {
         fprintf(runner->stream_out, "%.1Lf ns/loop\n", ns_per_loop);
